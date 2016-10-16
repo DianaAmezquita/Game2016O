@@ -4,6 +4,8 @@
 #include "Graphics\DXManager.h"
 #include "Graphics\MeshMathSurface.h"
 #include "Graphics\ImageBMP.h"
+#include "Sound\SndControl.h"
+#define SND_GAME 4
 
 #define CLSID_CSGame 0x0f347dcbb
 class CSGame :
@@ -42,5 +44,6 @@ protected:
 	void OnEntry(void);
 	unsigned long OnEvent(CEventBase* pEvent);
 	void OnExit(void);
+	CSndControl* m_pSndBackground;
 };
 

@@ -92,7 +92,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>dxgi.lib;d3d11.lib;dxguid.lib;d3dcompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dxgi.lib;d3d11.lib;dxguid.lib;d3dcompiler.lib;dsound.lib;dinput8.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -123,7 +123,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>dxgi.lib;d3d11.lib;dxguid.lib;d3dcompiler.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dxgi.lib;d3d11.lib;dxguid.lib;d3dcompiler.lib;dsound.lib;dinput8.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -147,6 +147,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ActionEvent.h" />
     <ClInclude Include="Game2016O.h" />
     <ClInclude Include="Graphics\DXBasicPainter.h" />
     <ClInclude Include="Graphics\DXManager.h" />
@@ -163,15 +164,24 @@
     <ClInclude Include="HSM\ObjectStock.h" />
     <ClInclude Include="HSM\StateBase.h" />
     <ClInclude Include="HSM\StateMachineManager.h" />
+    <ClInclude Include="InputProcessor.h" />
+    <ClInclude Include="Input\InputManager.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SGame.h" />
     <ClInclude Include="SIntroduction.h" />
     <ClInclude Include="SMain.h" />
     <ClInclude Include="SMainMenu.h" />
+    <ClInclude Include="Sound\SndControl.h" />
+    <ClInclude Include="Sound\SndFactory.h" />
+    <ClInclude Include="Sound\SndFile.h" />
+    <ClInclude Include="Sound\SndFx.h" />
+    <ClInclude Include="Sound\SndManager.h" />
+    <ClInclude Include="Sound\SndObject.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="ActionEvent.cpp" />
     <ClCompile Include="Game2016O.cpp" />
     <ClCompile Include="Graphics\DXBasicPainter.cpp" />
     <ClCompile Include="Graphics\DXManager.cpp" />
@@ -188,10 +198,17 @@
     <ClCompile Include="HSM\ObjectStock.cpp" />
     <ClCompile Include="HSM\StateBase.cpp" />
     <ClCompile Include="HSM\StateMachineManager.cpp" />
+    <ClCompile Include="InputProcessor.cpp" />
+    <ClCompile Include="Input\InputManager.cpp" />
     <ClCompile Include="SGame.cpp" />
     <ClCompile Include="SIntroduction.cpp" />
     <ClCompile Include="SMain.cpp" />
     <ClCompile Include="SMainMenu.cpp" />
+    <ClCompile Include="Sound\SndControl.cpp" />
+    <ClCompile Include="Sound\SndFactory.cpp" />
+    <ClCompile Include="Sound\SndFx.cpp" />
+    <ClCompile Include="Sound\SndManager.cpp" />
+    <ClCompile Include="Sound\SndObject.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

@@ -1,6 +1,8 @@
 ﻿  SMainMenu.cpp
 c:\users\andresalfredo\documents\iteso\05 diseño de motores de videojuegos\programas\game2016o\game2016o\graphics\dxmanager.h(5): warning C4005: 'SAFE_RELEASE': macro redefinition
   c:\users\andresalfredo\documents\iteso\05 diseño de motores de videojuegos\programas\game2016o\game2016o\hsm\objectbase.h(3): note: see previous definition of 'SAFE_RELEASE'
-c:\users\andresalfredo\documents\iteso\05 diseño de motores de videojuegos\programas\game2016o\game2016o\smainmenu.cpp(19): warning C4101: 'm_pSRVMainOption2': unreferenced local variable
-c:\users\andresalfredo\documents\iteso\05 diseño de motores de videojuegos\programas\game2016o\game2016o\smainmenu.cpp(18): warning C4101: 'm_pSRVMainOption1': unreferenced local variable
+c:\users\andresalfredo\documents\iteso\05 diseño de motores de videojuegos\programas\game2016o\game2016o\smainmenu.cpp(22): warning C4101: 'm_pSRVMainOption2': unreferenced local variable
+c:\users\andresalfredo\documents\iteso\05 diseño de motores de videojuegos\programas\game2016o\game2016o\smainmenu.cpp(21): warning C4101: 'm_pSRVMainOption1': unreferenced local variable
+c:\users\andresalfredo\documents\iteso\05 diseño de motores de videojuegos\programas\game2016o\game2016o\smainmenu.cpp(115): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\andresalfredo\documents\iteso\05 diseño de motores de videojuegos\programas\game2016o\game2016o\smainmenu.cpp(119): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
   Game2016O.vcxproj -> C:\Users\AndresAlfredo\Documents\ITESO\05 Diseño de Motores de Videojuegos\Programas\Game2016O\Debug\Game2016O.exe

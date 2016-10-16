@@ -62,14 +62,35 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     MSG msg;
 
     // Main message loop:
-    while (GetMessage(&msg, nullptr, 0, 0))
-    {
-        if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
-        {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
-        }
-    }
+	// Get Message bloquea la aplicacion ¿,, cuando hay mensajes en la cola .
+	// duerme y despierta le hilo principal
+	// PeekMessage no es bloqueante no pone el hilo a dormir. Obtiene el mensaje si existiera alguno.
+	// Si quiero verificar si hay algun mensaje puedo o no remover el mensaje para eso es el ultimo parameto
+	bool bExit = false;
+	CEventBase AppLoop;
+	AppLoop.m_ulEventType = APP_LOOP;
+	while (!bExit)
+	{
+		while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+		{
+			if (WM_QUIT == msg.message)
+			{
+				bExit = true;
+			}
+			if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+			{
+				TranslateMessage(&msg);
+				DispatchMessage(&msg);
+			}
+		}
+		// Hay que verificar que el ultio mensaje no haya sido psotquitmessage
+		// Este es mi idle (Antes no tenia este espacio de trabajo)
+		// Application time
+
+		g_Game.Dispatch(&AppLoop); 
+		g_Game.ProcessEvents(); // Se procesa todo lo que s ehaya producido
+	}
+    
 
     return (int) msg.wParam;
 }
@@ -145,6 +166,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    g_Game.LinkToSuperState(CLSID_CSMainMenu, CLSID_CSMain);
    g_Game.SetInitialState(CLSID_CSMain);
    pSMain->m_hWnd = hWnd;
+   pSMain->m_hInstance = hInstance;
    g_Game.Start();
 
    ShowWindow(hWnd, nCmdShow);

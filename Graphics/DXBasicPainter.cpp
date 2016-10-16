@@ -326,7 +326,7 @@ void CDXBasicPainter::DrawIndexed(VERTEX* pVertices, unsigned long nVertices,
 		m_pManager->GetContext()->OMSetDepthStencilState(m_pDSSDrawOnMask, 0x01);
 	else
 		m_pManager->GetContext()->OMSetDepthStencilState(m_pDSSDraw, 0x01);
-	m_pManager->GetContext()->OMSetRenderTargets(1, bShadow ? &m_pRTVShadowMap : &m_pRTV, bShadow ? m_DSVShadowMap : m_pManager->GetMainDTV());
+	m_pManager->GetContext()->OMSetRenderTargets(1, bShadow ? &m_pRTVShadowMap : &m_pRTV, bShadow ? m_DSVShadowMap : NULL);//m_pManager->GetMainDTV()
 	if (!bShadow)
 		m_pManager->GetContext()->PSSetShaderResources(5, 1, &m_pSRVShadowMap);
 		SAFE_RELEASE(pBackBuffer);

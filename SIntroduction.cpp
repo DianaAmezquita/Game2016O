@@ -39,7 +39,25 @@ void CSIntroduction::OnEntry(void)
 
 	m_pImagIntroduction = g_pSysTexture->CreateTexture(m_pDXManager);
 
+	
+	MAIN->m_pSndManager->ClearEngine();
+	auto fx = MAIN->m_pSndManager->LoadSoundFx(L"..\\Assets\\Explosion.wav", SND_EXPLOSION);
+	if (fx) 
+	{
+		printf("Explosion load success...\n");
+	}
+	else
+	{
+		printf("No se pudo cargar el sonido...\n");
+	}
+	fflush(stdout);
+	m_pSndBackground = MAIN->m_pSndManager->LoadSoundFx(L"..\\Assets\\FFX.wav", SND_BACKGROUND);
+	if (m_pSndBackground)
+	{
+		m_pSndBackground->Play(true);
+	}
 	SetTimer(MAIN->m_hWnd, 1, 5000, NULL); // el 1 es el identificador del timer es local entre ventanas
+	SetTimer(MAIN->m_hWnd, 2, 1000, NULL);
 	/*
 	//Aqui lo tenemos en memoria del sistema
 	CImageBMP* pIntro = CImageBMP::CreateBitmapFromFile("..\\Assets\\Koala256.bmp", NULL);
@@ -56,18 +74,62 @@ void CSIntroduction::OnEntry(void)
 
 unsigned long CSIntroduction::OnEvent(CEventBase * pEvent)
 {
+	static float speed = 1.0f;
+	// Todo lo que hagamos dentro de este if es nuestro tiempo libre
+	if (APP_LOOP == pEvent->m_ulEventType)
+	{
+		if (MAIN->m_pSndManager)
+		{
+			MAIN->m_pSndManager->RemoveAllSndFxStopped();
+		}
+
+		ID3D11Texture2D* pBackBuffer = 0;
+		m_pDXManager->GetSwapChain()->GetBuffer(0, IID_ID3D11Texture2D, (void**)&pBackBuffer);
+
+		D3D11_TEXTURE2D_DESC dtd;
+		// En estos momentos ya tengo la resolucion y ipo exactos
+		pBackBuffer->GetDesc(&dtd);
+
+		ID3D11ShaderResourceView* pSRV = NULL;
+		m_pDXManager->GetDevice()->CreateShaderResourceView(m_pImagIntroduction, NULL, &pSRV);
+		m_pDXManager->GetContext()->PSSetShaderResources(0, 1, &pSRV);
+
+		m_pEffects->SetRenderTarget(m_pDXManager->GetMainRTV());
+		m_pEffects->SetInput(pSRV);
+		m_pEffects->Process(0, dtd.Width, dtd.Height);
+
+		m_pDXManager->GetSwapChain()->Present(1, 0);
+
+		SAFE_RELEASE(pSRV);
+
+		//return 0;
+	}
 	if (EVENT_WIN32 == pEvent->m_ulEventType)
 	{
 		CEventWin32* pWin32 = (CEventWin32*)pEvent;
 		switch (pWin32->m_msg)
 		{
 		case WM_CHAR:
+		{
 			if ('b' == pWin32->m_wParam) // si es igual hacemos una transcicion
 			{
 				//MessageBoxA(NULL, "Vamos a transitar de S11 a S121", GetClassName(), MB_ICONINFORMATION);
 				m_pSMOwner->Transition(CLSID_CSGame);
 				return 0; // nunca se nosolvide retornar 0 para que no existe access violation
 			}
+			switch (pWin32->m_wParam)
+			{
+			case 'i':
+				speed = min(4.0, speed + 0.1);
+				this->m_pSndBackground->SetSpeed(speed);
+				break;
+			case 'k':
+				speed = max(4.0, speed + 0.1);
+				this->m_pSndBackground->SetSpeed(speed);
+				break;
+			}
+		}
+			
 			break;
 		case WM_PAINT:
 		{
@@ -91,24 +153,26 @@ unsigned long CSIntroduction::OnEvent(CEventBase * pEvent)
 			*/
 
 
-			ID3D11Texture2D* pBackBuffer = 0;
-			m_pDXManager->GetSwapChain()->GetBuffer(0, IID_ID3D11Texture2D, (void**)&pBackBuffer);
+			/////// ESTO ERA LO QUE ESTABA AQUI Y LO CAMBIAMOS CUANDO ESTA EN REPOSO LA MAQUINA
 
-			D3D11_TEXTURE2D_DESC dtd;
-			// En estos momentos ya tengo la resolucion y ipo exactos
-			pBackBuffer->GetDesc(&dtd);
+			//ID3D11Texture2D* pBackBuffer = 0;
+			//m_pDXManager->GetSwapChain()->GetBuffer(0, IID_ID3D11Texture2D, (void**)&pBackBuffer);
 
-			ID3D11ShaderResourceView* pSRV = NULL;
-			m_pDXManager->GetDevice()->CreateShaderResourceView(m_pImagIntroduction, NULL, &pSRV);
-			m_pDXManager->GetContext()->PSSetShaderResources(0, 1, &pSRV);
+			//D3D11_TEXTURE2D_DESC dtd;
+			//// En estos momentos ya tengo la resolucion y ipo exactos
+			//pBackBuffer->GetDesc(&dtd);
 
-			m_pEffects->SetRenderTarget(m_pDXManager->GetMainRTV());
-			m_pEffects->SetInput(pSRV);
-			m_pEffects->Process(0, dtd.Width, dtd.Height);
+			//ID3D11ShaderResourceView* pSRV = NULL;
+			//m_pDXManager->GetDevice()->CreateShaderResourceView(m_pImagIntroduction, NULL, &pSRV);
+			//m_pDXManager->GetContext()->PSSetShaderResources(0, 1, &pSRV);
 
-			m_pDXManager->GetSwapChain()->Present(1, 0);
+			//m_pEffects->SetRenderTarget(m_pDXManager->GetMainRTV());
+			//m_pEffects->SetInput(pSRV);
+			//m_pEffects->Process(0, dtd.Width, dtd.Height);
 
-			SAFE_RELEASE(pSRV);
+			//m_pDXManager->GetSwapChain()->Present(1, 0);
+
+			//SAFE_RELEASE(pSRV);
 			
 		}
 		return 0;
@@ -119,7 +183,12 @@ unsigned long CSIntroduction::OnEvent(CEventBase * pEvent)
 				InvalidateRect(MAIN->m_hWnd, NULL, false);
 				return 0;
 			}
-
+			if (2 == pWin32->m_wParam)
+			{
+				KillTimer(MAIN->m_hWnd, 2);
+				MAIN->m_pSndManager->PlayFx(SND_EXPLOSION, 1,0,0.3);
+			}
+			break;
 		case WM_CLOSE:
 			m_pSMOwner->Transition(CLSID_CStateNull);
 			return 0;

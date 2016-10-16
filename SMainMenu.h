@@ -1,6 +1,7 @@
 #pragma once
 #include "HSM\StateBase.h"
 #include <d3d11.h>
+#include "ActionEvent.h"
 #define CLSID_CSMainMenu 0x33661188
 class CSMainMenu :
 	public CStateBase
@@ -15,7 +16,10 @@ private:
 	ID3D11ShaderResourceView* m_pSRVBackGround;
 	ID3D11ShaderResourceView* m_pSRVMainOption1;
 	ID3D11ShaderResourceView* m_pSRVMainOption2;
+	ID3D11ShaderResourceView* m_pSRVSelectionBar;
 	int m_nOption; // 0: option1, 1:option2
+	float m_fOffsetX;
+	float m_fOffsetY;
 	void OnEntry();
 	unsigned long OnEvent(CEventBase*  pEvent);
 	void OnExit();
