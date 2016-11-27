@@ -94,6 +94,8 @@ CImageBMP* CImageBMP::CreateBitmapFromFile(
 							 p->a = pRow[i * 3 + 3];
 						 else
 							 p->a = 1;
+
+						 *p = pFnAlpha ? pFnAlpha(*p) : *p; // esto se agrego
 					 }
 
 				 }

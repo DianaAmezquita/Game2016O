@@ -12,6 +12,7 @@ CSMainMenu::CSMainMenu()
 	m_pSRVMainOption1 = NULL;
 	m_pSRVMainOption2 = NULL;
 	m_pSRVSelectionBar = NULL;
+	//m_pTextRender = NULL;
 }
 
 
@@ -26,6 +27,7 @@ void CSMainMenu::OnEntry()
 {
 	m_nOption = 0;
 	printf("Iniciando menu principal...\n");
+	
 	fflush(stdout);
 	{
 		printf("Cargando recurso de fondo...\n");
@@ -88,8 +90,13 @@ void CSMainMenu::OnEntry()
 		}
 	}
 	MAIN->m_pSndManager->ClearEngine();
+	m_pSndBackground = MAIN->m_pSndManager->LoadSoundFx(L"..\\Assets\\MenuSoundSmash.wav", SND_BACKGROUND);
+	if (m_pSndBackground)
+	{
+		m_pSndBackground->Play(true);
+	}
 	MAIN->m_pSndManager->LoadSoundFx(L"..\\Assets\\Explosion.wav", 1);
-
+	MAIN->m_pDXPainter->m_Params.Brightness = { 0,0,0,0 };
 	m_fOffsetX = 0.0f;
 }
 
@@ -108,7 +115,48 @@ unsigned long CSMainMenu::OnEvent(CEventBase* pEvent)
 		CActionEvent* pInput = (CActionEvent*)pEvent;
 		if (pInput->m_nAction == JOY_BUTTON_A_PRESSED)
 		{
-			MAIN->m_pSndManager->PlayFx(1);
+			//MAIN->m_pSndManager->PlayFx(1);
+			auto Painter = MAIN->m_pDXPainter;
+			auto Ctx = MAIN->m_pDXManager->GetContext();
+			CDXBasicPainter::VERTEX Frame1[4]
+			{
+				{ { -0.5,2.0f / 5.0f,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 0,0,0,0 } }, // Primer vertice 
+				{ { 0.5,2.0f / 5.0f,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 1,0,0,0 } },
+				{ { -0.5,1.0f / 3.0f,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 0,1,0,0 } },
+				{ { 0.5,1.0f / 3.0f,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 1,1,0,0 } }
+			};
+			unsigned long FrameIndex[6] = { 0,1,2,2,1,3 };
+			Ctx->ClearDepthStencilView(MAIN->m_pDXManager->GetMainDTV(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+			Painter->SetRenderTarget(MAIN->m_pDXManager->GetMainRTV());
+			Painter->m_Params.View = Painter->m_Params.World = Painter->m_Params.Projection = Identity(); // Nos aseguramos que este en 2D
+			Painter->m_Params.Flags1 = MAPPING_EMISSIVE;
+			Ctx->PSSetShaderResources(4, 1, &m_pSRVSelectionBar);
+			Painter->DrawIndexed(Frame1, 4, FrameIndex, 6, 0);
+			MAIN->m_pDXManager->GetSwapChain()->Present(1, 0);
+			m_pSMOwner->Transition(CLSID_CSGame);
+			InvalidateRect(MAIN->m_hWnd, NULL, false);
+			return 0; // nunca se nosolvide retornar 0 para que no existe access violation
+		}
+		if (pInput->m_nAction == JOY_BUTTON_B_PRESSED)
+		{
+			auto Painter = MAIN->m_pDXPainter;
+			auto Ctx = MAIN->m_pDXManager->GetContext();
+			CDXBasicPainter::VERTEX Frame1[4]
+			{
+				{ { -0.5,-1.0f / 3.0f,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 0,0,0,0 } }, // Primer vertice 
+				{ { 0.5,-1.0f / 3.0f,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 1,0,0,0 } },
+				{ { -0.5,-2.0f / 5.0f,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 0,1,0,0 } },
+				{ { 0.5,-2.0f / 5.0f,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 1,1,0,0 } }
+			};
+			unsigned long FrameIndex[6] = { 0,1,2,2,1,3 };
+			Ctx->ClearDepthStencilView(MAIN->m_pDXManager->GetMainDTV(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+			Painter->SetRenderTarget(MAIN->m_pDXManager->GetMainRTV());
+			Painter->m_Params.View = Painter->m_Params.World = Painter->m_Params.Projection = Identity(); // Nos aseguramos que este en 2D
+			Painter->m_Params.Flags1 = MAPPING_EMISSIVE;
+			Ctx->PSSetShaderResources(4, 1, &m_pSRVSelectionBar);
+			Painter->DrawIndexed(Frame1, 4, FrameIndex, 6, 0);
+			MAIN->m_pDXManager->GetSwapChain()->Present(1, 0);
+			DestroyWindow(MAIN->m_hWnd);
 		}
 		if (JOY_AXIS_LX == pInput->m_nAction)
 		{
@@ -174,6 +222,14 @@ unsigned long CSMainMenu::OnEvent(CEventBase* pEvent)
 		Ctx->PSSetShaderResources(4, 1, &m_pSRVMainOption2);
 		Painter->DrawIndexed(Frame2, 4, FrameIndex, 6, 0);
 
+
+		MATRIX4D ST = Translation(0.5,-0.5,0)* // Centro de caracter
+			Scaling(0.05,0.06,1)* // Tamaño del caracter
+			//RotationZ(3.141592/4)* //Orientacion del texto
+			Translation(-1,1,0); //Posicion del texto
+
+		//MAIN->m_pDXManager->GetContext()->OMSetBlendState(NULL, NULL, -1);
+		MAIN->m_pTextRender->RenderText(ST, "Andres");
 		MAIN->m_pDXManager->GetSwapChain()->Present(1, 0);
 
 		////return 0;
@@ -232,52 +288,7 @@ unsigned long CSMainMenu::OnEvent(CEventBase* pEvent)
 			}
 			break;
 		case WM_PAINT:
-		{
-			//auto Painter = MAIN->m_pDXPainter;
-			//auto Ctx = MAIN->m_pDXManager->GetContext();
-			//CDXBasicPainter::VERTEX Frame[4]
-			//{
-			//	{ { -1,1,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 0,0,0,0 } }, // Primer vertice 
-			//	{ { 1,1,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 1,0,0,0 } },
-			//	{ { -1,-1,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 0,1,0,0 } },
-			//	{ { 1,-1,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 1,1,0,0 } }
-			//};
-			//unsigned long FrameIndex[6] = { 0,1,2,2,1,3 };
-			//Ctx->ClearDepthStencilView(MAIN->m_pDXManager->GetMainDTV(), D3D11_CLEAR_DEPTH, 1.0f, 0);
-			//Painter->SetRenderTarget(MAIN->m_pDXManager->GetMainRTV());
-			//Painter->m_Params.View = Painter->m_Params.World = Painter->m_Params.Projection = Identity(); // Nos aseguramos que este en 2D
-			//Painter->m_Params.Flags1 = MAPPING_EMISSIVE;
-			//Ctx->PSSetShaderResources(4, 1, &m_pSRVBackGround);
-			//Painter->DrawIndexed(Frame, 4, FrameIndex, 6, 0);
-
-			////Dibujar la opcion 1
-
-			//CDXBasicPainter::VERTEX Frame1[4]
-			//{
-			//	{ { -0.5,2.0f/3.0f,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 0,0,0,0 } }, // Primer vertice 
-			//	{ {  0.5,2.0f/3.0f,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 1,0,0,0 } },
-			//	{ { -0.5,1.0f/3.0f,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 0,1,0,0 } },
-			//	{ {  0.5,1.0f/3.0f,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 1,1,0,0 } }
-			//};
-
-			//Ctx->PSSetShaderResources(4, 1, &m_pSRVMainOption1);
-			//Painter->DrawIndexed(Frame1, 4, FrameIndex, 6, 0);
-	
-			//
-			////Dibujar Opcion2 
-			//CDXBasicPainter::VERTEX Frame2[4]
-			//{
-			//	{ { -0.5,-1.0f / 3.0f,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 0,0,0,0 } }, // Primer vertice 
-			//	{ {  0.5,-1.0f / 3.0f,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 1,0,0,0 } },
-			//	{ { -0.5,-2.0f / 3.0f,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 0,1,0,0 } },
-			//	{ {  0.5,-2.0f / 3.0f,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 1,1,0,0 } }
-			//};
-			//Ctx->PSSetShaderResources(4, 1, &m_pSRVMainOption2);
-			//Painter->DrawIndexed(Frame2, 4, FrameIndex, 6, 0);
-
-			//MAIN->m_pDXManager->GetSwapChain()->Present(1, 0);
-			//
-			
+		{			
 		}
 		ValidateRect(MAIN->m_hWnd, NULL);
 

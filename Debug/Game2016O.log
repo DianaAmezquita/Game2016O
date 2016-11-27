@@ -1,8 +1,25 @@
-﻿  SMainMenu.cpp
+﻿  SGame.cpp
 c:\users\andresalfredo\documents\iteso\05 diseño de motores de videojuegos\programas\game2016o\game2016o\graphics\dxmanager.h(5): warning C4005: 'SAFE_RELEASE': macro redefinition
   c:\users\andresalfredo\documents\iteso\05 diseño de motores de videojuegos\programas\game2016o\game2016o\hsm\objectbase.h(3): note: see previous definition of 'SAFE_RELEASE'
-c:\users\andresalfredo\documents\iteso\05 diseño de motores de videojuegos\programas\game2016o\game2016o\smainmenu.cpp(22): warning C4101: 'm_pSRVMainOption2': unreferenced local variable
-c:\users\andresalfredo\documents\iteso\05 diseño de motores de videojuegos\programas\game2016o\game2016o\smainmenu.cpp(21): warning C4101: 'm_pSRVMainOption1': unreferenced local variable
-c:\users\andresalfredo\documents\iteso\05 diseño de motores de videojuegos\programas\game2016o\game2016o\smainmenu.cpp(115): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-c:\users\andresalfredo\documents\iteso\05 diseño de motores de videojuegos\programas\game2016o\game2016o\smainmenu.cpp(119): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+c:\users\andresalfredo\documents\iteso\05 diseño de motores de videojuegos\programas\game2016o\game2016o\sgame.cpp(44): warning C4305: 'argument': truncation from 'double' to 'float'
+c:\users\andresalfredo\documents\iteso\05 diseño de motores de videojuegos\programas\game2016o\game2016o\sgame.cpp(45): warning C4305: 'argument': truncation from 'double' to 'float'
+c:\users\andresalfredo\documents\iteso\05 diseño de motores de videojuegos\programas\game2016o\game2016o\sgame.cpp(25): warning C4101: 'players': unreferenced local variable
+c:\users\andresalfredo\documents\iteso\05 diseño de motores de videojuegos\programas\game2016o\game2016o\sgame.cpp(210): warning C4244: '=': conversion from 'UINT' to 'float', possible loss of data
+c:\users\andresalfredo\documents\iteso\05 diseño de motores de videojuegos\programas\game2016o\game2016o\sgame.cpp(211): warning C4244: '=': conversion from 'UINT' to 'float', possible loss of data
+c:\users\andresalfredo\documents\iteso\05 diseño de motores de videojuegos\programas\game2016o\game2016o\sgame.cpp(227): warning C4838: conversion from 'double' to 'float' requires a narrowing conversion
+c:\users\andresalfredo\documents\iteso\05 diseño de motores de videojuegos\programas\game2016o\game2016o\sgame.cpp(227): warning C4305: 'initializing': truncation from 'double' to 'float'
+c:\users\andresalfredo\documents\iteso\05 diseño de motores de videojuegos\programas\game2016o\game2016o\sgame.cpp(281): warning C4305: 'argument': truncation from 'double' to 'float'
+c:\users\andresalfredo\documents\iteso\05 diseño de motores de videojuegos\programas\game2016o\game2016o\sgame.cpp(287): warning C4305: 'argument': truncation from 'double' to 'float'
+c:\users\andresalfredo\documents\iteso\05 diseño de motores de videojuegos\programas\game2016o\game2016o\sgame.cpp(303): warning C4305: '-=': truncation from 'double' to 'float'
+c:\users\andresalfredo\documents\iteso\05 diseño de motores de videojuegos\programas\game2016o\game2016o\sgame.cpp(304): warning C4305: '-=': truncation from 'double' to 'float'
+c:\users\andresalfredo\documents\iteso\05 diseño de motores de videojuegos\programas\game2016o\game2016o\sgame.cpp(305): warning C4305: '-=': truncation from 'double' to 'float'
+c:\users\andresalfredo\documents\iteso\05 diseño de motores de videojuegos\programas\game2016o\game2016o\sgame.cpp(307): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+c:\users\andresalfredo\documents\iteso\05 diseño de motores de videojuegos\programas\game2016o\game2016o\sgame.cpp(318): warning C4305: '-=': truncation from 'double' to 'float'
+c:\users\andresalfredo\documents\iteso\05 diseño de motores de videojuegos\programas\game2016o\game2016o\sgame.cpp(319): warning C4305: '-=': truncation from 'double' to 'float'
+c:\users\andresalfredo\documents\iteso\05 diseño de motores de videojuegos\programas\game2016o\game2016o\sgame.cpp(320): warning C4305: '-=': truncation from 'double' to 'float'
+c:\users\andresalfredo\documents\iteso\05 diseño de motores de videojuegos\programas\game2016o\game2016o\sgame.cpp(322): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+c:\users\andresalfredo\documents\iteso\05 diseño de motores de videojuegos\programas\game2016o\game2016o\sgame.cpp(355): warning C4305: '-=': truncation from 'double' to 'float'
+c:\users\andresalfredo\documents\iteso\05 diseño de motores de videojuegos\programas\game2016o\game2016o\sgame.cpp(356): warning C4305: '-=': truncation from 'double' to 'float'
+c:\users\andresalfredo\documents\iteso\05 diseño de motores de videojuegos\programas\game2016o\game2016o\sgame.cpp(357): warning C4305: '-=': truncation from 'double' to 'float'
+c:\users\andresalfredo\documents\iteso\05 diseño de motores de videojuegos\programas\game2016o\game2016o\sgame.cpp(358): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
   Game2016O.vcxproj -> C:\Users\AndresAlfredo\Documents\ITESO\05 Diseño de Motores de Videojuegos\Programas\Game2016O\Debug\Game2016O.exe

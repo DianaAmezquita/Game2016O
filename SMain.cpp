@@ -11,6 +11,9 @@ CSMain::CSMain()
 	m_pDXPainter = NULL;
 	m_pInputManager = NULL;
 	m_pSndManager = NULL;
+	m_pNetProcessor = NULL;
+	m_pTextRender = NULL;
+	win = false;
 	m_bInitializationCorrect = true;
 	printf("Iniciando Motores....\n");
 	fflush(stdout);
@@ -78,9 +81,27 @@ void CSMain::OnEntry(void)
 	}
 	else
 	{
-
+		printf("OK\n");
+	}
+	printf("Initializing network\n");
+	m_pNetProcessor = new CNetProcessor(m_pSMOwner);
+	if (!m_pNetProcessor->InitNetwork())
+	{
+		printf("Unable to work as server, connections are allowed instead\n");
 	}
 	fflush(stdout);
+	printf("Initializing Text Render...\n");
+	m_pTextRender = new CDXTextRenderer(m_pDXManager, m_pDXPainter);
+	if (!m_pTextRender->Initialize())
+	{
+		printf("Unable to initialize text renderizer..\n");
+	}
+	else
+	{
+		printf("Initialization of text correct =)\n");
+	}
+	fflush(stdout);
+
 	
 }
 #include "HSM\EventWin32.h"
@@ -122,7 +143,16 @@ unsigned long CSMain::OnEvent(CEventBase * pEvent)
 		case WM_CLOSE:
 			m_pSMOwner->Transition(CLSID_CStateNull);
 			return 0;
+		case WM_CHAR:
+			switch (pWin32->m_lParam)
+			{
+			case 'c':
+			case 'C':
+				MAIN->m_pNetProcessor->Connect(L"127.0.0.1");
+			}
+			break;
 		}
+		
 	}
 	return __super::OnEvent(pEvent);
 }
@@ -133,10 +163,12 @@ void CSMain::OnExit(void)
 	m_pDXManager->Uninitialize();
 	m_pSndManager->UnitializeSoundEngine();
 	m_pInputManager->FinalizeDirectInputSession();
+	m_pTextRender->Uninitialize();
 	SAFE_DELETE(m_pDXPainter);
 	SAFE_DELETE(m_pDXManager);
 	CSndFactory Factory;
 	Factory.DestroyObject(m_pSndManager);
 	SAFE_DELETE(m_pInputManager);
 	SAFE_DELETE(m_pInputProcessor);
+	SAFE_DELETE(m_pTextRender);
 }

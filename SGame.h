@@ -11,7 +11,14 @@
 class CSGame :
 	public CStateBase
 {
+	struct Player
+	{
+		MATRIX4D world;
+		VECTOR4D brightness;
+	};
 public:
+	MATRIX4D a;
+	bool m_combination[6];
 	CDXManager*  m_pDXManager;
 	CDXBasicPainter* m_pDXPainter;
 	float g_iWidth;
@@ -33,7 +40,9 @@ public:
 
 	ID3D11Texture2D* g_pNormalMap;
 	ID3D11Texture2D* g_pEnvMap;
-	CMeshMathSurface g_Surface;
+	CMeshMathSurface g_Surface[2];
+	unsigned int counterCLicks1;
+	unsigned int counterCLicks2;
 	bool m_bInitializationCorrect;
 	unsigned long GetClassID() { return CLSID_CSGame; }
 	const char* GetClassString() { return "CSGame"; }

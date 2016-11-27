@@ -11,6 +11,8 @@
 #include <io.h>
 #include <fcntl.h>
 #include "SMainMenu.h"
+#include "SGameOver.h"
+#include "SCredits.h"
 
 #define MAX_LOADSTRING 100
 
@@ -148,19 +150,23 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    // pSMain
    CSMain* pSMain = new CSMain();
    CSGame* pSGame = new CSGame();
+   CSGameOver* pSGameOver = new CSGameOver();
+   CSCredits* pSCredits = new CSCredits();
    CSIntroduction* pSIntroduction = new CSIntroduction();
    CSMainMenu* pSMainMenu = new CSMainMenu();
 
 
+   g_Game.RegisterState(pSCredits, CLSID_CSCredits, 0);
+   g_Game.RegisterState(pSGameOver, CLSID_CSGameOver, 0);
    g_Game.RegisterState(pSIntroduction, CLSID_CSIntroduction, 0);
    g_Game.RegisterState(pSGame, CLSID_CSGame, 0);
    g_Game.RegisterState(pSMainMenu, CLSID_CSMainMenu, 0);
 
 
-   g_Game.RegisterState(pSMain, CLSID_CSMain, CLSID_CSIntroduction);
+   g_Game.RegisterState(pSMain, CLSID_CSMain, CLSID_CSMainMenu); //CLSID_CSIntroduction   CLSID_CSMainMenu
    
-   
-
+   g_Game.LinkToSuperState(CLSID_CSCredits, CLSID_CSMain);
+   g_Game.LinkToSuperState(CLSID_CSGameOver, CLSID_CSMain);
    g_Game.LinkToSuperState(CLSID_CSGame, CLSID_CSMain);
    g_Game.LinkToSuperState(CLSID_CSIntroduction, CLSID_CSMain);
    g_Game.LinkToSuperState(CLSID_CSMainMenu, CLSID_CSMain);

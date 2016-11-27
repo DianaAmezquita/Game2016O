@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "SIntroduction.h"
+#include "SCredits.h"
 #include "SMain.h"
 #include "Graphics\DXBasicPainter.h"
 #include "Graphics\DXManager.h"
@@ -7,26 +7,23 @@
 #include "HSM\EventWin32.h"
 #include "HSM\StateMachineManager.h"
 #include "Graphics\ImageBMP.h"
+#include "SGameOver.h"
 #include "SMainMenu.h"
 
-CSIntroduction::CSIntroduction()
+CSCredits::CSCredits()
 {
 }
 
 
-CSIntroduction::~CSIntroduction()
+CSCredits::~CSCredits()
 {
 }
 
-void CSIntroduction::OnEntry(void)
+void CSCredits::OnEntry(void)
 {
 	CSMain* p_main = (CSMain*)GetSuperState();
-	
 	m_pDXManager = p_main->m_pDXManager;
 	m_pDXPainter = p_main->m_pDXPainter;
-	CImageBMP*      g_pSysTexture; //CPU
-
-	m_pDXPainter->m_Params.Brightness = { 0,0,0,0 };
 	m_pEffects = new CFX(m_pDXManager);
 
 	if (!m_pEffects->Initialize())
@@ -35,34 +32,13 @@ void CSIntroduction::OnEntry(void)
 			L"No se pudo Iniciar", MB_ICONERROR);
 		// Preguntar al corni si nos regreamos al estado nulo
 	}
-	g_pSysTexture = CImageBMP::CreateBitmapFromFile("..\\Assets\\CaffeinePresents.bmp", NULL);
-
-	m_pImagIntroduction = g_pSysTexture->CreateTexture(m_pDXManager);
-
-	
+	g_pSysTextur = CImageBMP::CreateBitmapFromFile("..\\Assets\\Credits.bmp", NULL);
+	m_pImag = g_pSysTextur->CreateTexture(m_pDXManager);
 	MAIN->m_pSndManager->ClearEngine();
-	//auto fx = MAIN->m_pSndManager->LoadSoundFx(L"..\\Assets\\Explosion.wav", SND_EXPLOSION);
-	//if (fx) 
-	//{
-	//	printf("Explosion load success...\n");
-	//}
-	//else
-	//{
-	//	printf("No se pudo cargar el sonido...\n");
-	//}
-	fflush(stdout);
-	m_pSndBackground = MAIN->m_pSndManager->LoadSoundFx(L"..\\Assets\\PlaystationOneStartUp.wav", SND_BACKGROUND);
-	if (m_pSndBackground)
-	{
-		m_pSndBackground->Play(true);
-	}
-	SetTimer(MAIN->m_hWnd, 1, 14000, NULL); // el 1 es el identificador del timer es local entre ventanas
-	SetTimer(MAIN->m_hWnd, 2, 1000, NULL);
-
+	MAIN->m_pDXManager->GetContext()->OMSetBlendState(NULL, NULL, -1);
 }
 
-
-unsigned long CSIntroduction::OnEvent(CEventBase * pEvent)
+unsigned long CSCredits::OnEvent(CEventBase * pEvent)
 {
 	static float speed = 1.0f;
 	// Todo lo que hagamos dentro de este if es nuestro tiempo libre
@@ -81,7 +57,7 @@ unsigned long CSIntroduction::OnEvent(CEventBase * pEvent)
 		pBackBuffer->GetDesc(&dtd);
 
 		ID3D11ShaderResourceView* pSRV = NULL;
-		m_pDXManager->GetDevice()->CreateShaderResourceView(m_pImagIntroduction, NULL, &pSRV);
+		m_pDXManager->GetDevice()->CreateShaderResourceView(m_pImag, NULL, &pSRV);
 		m_pDXManager->GetContext()->PSSetShaderResources(0, 1, &pSRV);
 
 		m_pEffects->SetRenderTarget(m_pDXManager->GetMainRTV());
@@ -119,8 +95,9 @@ unsigned long CSIntroduction::OnEvent(CEventBase * pEvent)
 				break;
 			}
 		}
-			
-			break;
+
+		break;
+
 		case WM_TIMER:
 			if (1 == pWin32->m_wParam)
 			{
@@ -131,7 +108,7 @@ unsigned long CSIntroduction::OnEvent(CEventBase * pEvent)
 			if (2 == pWin32->m_wParam)
 			{
 				KillTimer(MAIN->m_hWnd, 2);
-				MAIN->m_pSndManager->PlayFx(SND_EXPLOSION, 1,0,0.3);
+				MAIN->m_pSndManager->PlayFx(SND_EXPLOSION, 1, 0, 0.3);
 			}
 			break;
 		case WM_CLOSE:
@@ -142,9 +119,8 @@ unsigned long CSIntroduction::OnEvent(CEventBase * pEvent)
 	return __super::OnEvent(pEvent);
 }
 
-void CSIntroduction::OnExit(void)
+void CSCredits::OnExit(void)
 {
 	KillTimer(MAIN->m_hWnd, 1);
 	SAFE_DELETE(m_pEffects);
 }
-

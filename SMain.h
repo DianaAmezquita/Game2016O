@@ -8,6 +8,8 @@
 #include "Sound\SndFactory.h"
 #include "Input\InputManager.h"
 #include "InputProcessor.h"
+#include "NetProcessor.h"
+#include "DXTextRenderer.h"
 
 #define MAIN ((CSMain*)m_pSMOwner->GetObjectByID(CLSID_CSMain))
 #define CLSID_CSMain 0x0dccd3ed
@@ -42,7 +44,10 @@ public:
 	CSndManager* m_pSndManager;
 	CInputManager* m_pInputManager;
 	CInputProcessor*  m_pInputProcessor;
+	CNetProcessor* m_pNetProcessor;
+	CDXTextRenderer* m_pTextRender;
 	bool m_bInitializationCorrect;
+	bool win;
 	unsigned long GetClassID() { return CLSID_CSMain; }
 	const char* GetClassString() { return "CSMain"; }
 public:
