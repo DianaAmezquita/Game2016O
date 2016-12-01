@@ -11,19 +11,25 @@
 class CSGame :
 	public CStateBase
 {
+private:
 	struct Player
 	{
 		MATRIX4D world;
 		VECTOR4D brightness;
+		unsigned int counterClicks;
 	};
 public:
-	MATRIX4D a;
+	ID3D11ShaderResourceView* m_pSRVBackGround;
+	MATRIX4D g_WorldPlayer1;
+	MATRIX4D g_WorldPlayer2;
+	CDXBasicPainter::PARAMS g_BrigthnessP1;
+	CDXBasicPainter::PARAMS g_BrigthnessP2;
 	bool m_combination[6];
 	CDXManager*  m_pDXManager;
 	CDXBasicPainter* m_pDXPainter;
 	float g_iWidth;
 	float g_iHeight;
-	MATRIX4D g_World;
+	
 	MATRIX4D g_View;
 	MATRIX4D g_Projection;
 	CImageBMP*      g_pSysTexture; //CPU
@@ -46,6 +52,7 @@ public:
 	bool m_bInitializationCorrect;
 	unsigned long GetClassID() { return CLSID_CSGame; }
 	const char* GetClassString() { return "CSGame"; }
+	void LoadScene(char * filename);
 public:
 	CSGame();
 	virtual ~CSGame();

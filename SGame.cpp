@@ -8,16 +8,18 @@
 #include "HSM\StateMachineManager.h"
 #include "ActionEvent.h"
 #include <sstream>
+
+/* assimp include files. */
+#include <assimp/cimport.h>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 CSGame::CSGame()
 {
 }
 
-
 CSGame::~CSGame()
 {
 }
-
-
 
 void CSGame::OnEntry(void)
 {
@@ -52,92 +54,28 @@ void CSGame::OnEntry(void)
 	g_Surface[1].BuildTangentSpaceFromTexCoordsIndexed(true);
 	g_Surface[1].SetColor(White, White, White, White);
 	
-	m_pDXPainter->m_Params.Brightness = { 1,1,1,1 };
-
-	g_World = Identity();// RotationZ(theta);
-	m_pDXPainter->m_Params.World = g_World; //* RotationY(theta);
-
-	//g_pSysTexture = CImageBMP::
-	//	CreateBitmapFromFile("..\\Assets\\Koala256.bmp", NULL);
-	//if (!g_pSysTexture)
-	//{
-	//	MessageBox(NULL, L"No se pudo cargar textura desde archivo",
-	//		L"Verificar recursos sombreadores", MB_ICONERROR);
-	//}
-
-	//g_pTexture = g_pSysTexture->CreateTexture(m_pDXManager);
-	//if (!g_pTexture)
-	//{
-	//	MessageBox(NULL, L"No se pudo cargar textura al GPU",
-	//		L"Verificar recursos sombreadores", MB_ICONERROR);
-	//}
-	// Abajo se ponia la de ladrillo
-	CImageBMP* pImage = CImageBMP::CreateBitmapFromFile("..\\Assets\\ladrillo.bmp", NULL);
-	if (!pImage)
+	m_pDXPainter->m_Params.Brightness = { 0,0,0,0 };
+	g_BrigthnessP1.Brightness = { 1,1,1,1 };
+	g_BrigthnessP2.Brightness = { 1,1,1,1 };
+	g_WorldPlayer1 = Translation(4, -3, -10)*Identity();// RotationZ(theta);
+	g_WorldPlayer2 = Translation(-3, -3, 0)*Identity();
+	//m_pDXPainter->m_Params.World = g_WorldPlayer1; //* RotationY(theta);
+	g_Surface[0].BuildTangentSpaceFromTexCoordsIndexed(true);
+	g_Surface[1].BuildTangentSpaceFromTexCoordsIndexed(true);
+	printf("Cargando recurso de fondo...\n");
+	fflush(stdout);
+	auto img = CImageBMP::CreateBitmapFromFile("..\\Assets\\Bowser.bmp", NULL);
+	if (!img)
 	{
-		MessageBox(NULL, L"No se pudo cargar textura desde archivo",
-			L"Verificar recursos sombreadores", MB_ICONERROR);
+		printf("Recurso no encontrado\n");
+		fflush(stdout);
+	}
+	else
+	{
+		auto tex = img->CreateTexture(MAIN->m_pDXManager);
+		MAIN->m_pDXManager->GetDevice()->CreateShaderResourceView(tex, NULL, &m_pSRVBackGround);
 	}
 
-	g_pNormalMap = pImage->CreateTexture(m_pDXManager);
-	if (!g_pNormalMap)
-	{
-		MessageBox(NULL, L"No se pudo cargar textura desde archivo",
-			L"Verificar recursos sombreadores", MB_ICONERROR);
-	}
-	CImageBMP::DestroyBitmap(pImage);
-
-	pImage = CImageBMP::CreateBitmapFromFile("..\\Assets\\SanPedro.bmp", NULL);
-
-	if (!pImage)
-	{
-		MessageBox(NULL, L"No se pudo cargar textura desde archivo",
-			L"Verificar recursos sombreadores", MB_ICONERROR);
-	}
-
-	g_pEnvMap = pImage->CreateTexture(m_pDXManager);
-
-	if (!g_pEnvMap)
-	{
-		MessageBox(NULL, L"No se pudo cargar textura al GPU",
-			L"Verificar recursos sombreadores", MB_ICONERROR);
-	}
-
-	CImageBMP::DestroyBitmap(pImage);
-
-	pImage = CImageBMP::CreateBitmapFromFile("..\\Assets\\Normal.bmp", NULL);
-
-	if (!pImage)
-	{
-		MessageBox(NULL, L"No se pudo cargar textura desde archivo",
-			L"Verificar recursos sombreadores", MB_ICONERROR);
-	}
-
-	g_pNormalMapTrue = pImage->CreateTexture(m_pDXManager);
-
-	if (!g_pNormalMapTrue)
-	{
-		MessageBox(NULL, L"No se pudo cargar textura al GPU",
-			L"Verificar recursos sombreadores", MB_ICONERROR);
-	}
-
-	CImageBMP::DestroyBitmap(pImage);
-
-	pImage = CImageBMP::CreateBitmapFromFile("..\\Assets\\Emissive.bmp", NULL);
-
-	if (!pImage)
-	{
-		MessageBox(NULL, L"No se pudo cargar textura desde archivo",
-			L"Verificar recursos sombreadores", MB_ICONERROR);
-	}
-
-	g_pEmissiveMap = pImage->CreateTexture(m_pDXManager);
-
-	if (!g_pEmissiveMap)
-	{
-		MessageBox(NULL, L"No se pudo cargar textura al GPU",
-			L"Verificar recursos sombreadores", MB_ICONERROR);
-	}
 	MAIN->m_pSndManager->ClearEngine();
 	m_pSndBackground = MAIN->m_pSndManager->LoadSoundFx(L"..\\Assets\\OnGameSound.wav", SND_GAME);
 	if (m_pSndBackground)
@@ -145,10 +83,9 @@ void CSGame::OnEntry(void)
 		m_pSndBackground->Play(true);
 	}
 	MAIN->m_pSndManager->LoadSoundFx(L"..\\Assets\\Blow.wav", 1);
-	CImageBMP::DestroyBitmap(pImage);
-	MATRIX4D a = Translation(5, 2, 0)*Identity();
-}
 
+
+}
 
 unsigned long CSGame::OnEvent(CEventBase * pEvent)
 {
@@ -181,14 +118,11 @@ unsigned long CSGame::OnEvent(CEventBase * pEvent)
 				m_combination[4] = true;
 			}
 		}
-		
-		
 	}
 	// Todo lo que hagamos dentro de este if es nuestro tiempo libre
 	
 	if (APP_LOOP == pEvent->m_ulEventType)
 	{
-		
 		if (MAIN->m_pSndManager)
 		{
 			MAIN->m_pSndManager->RemoveAllSndFxStopped();
@@ -199,7 +133,7 @@ unsigned long CSGame::OnEvent(CEventBase * pEvent)
 			ID3D11Texture2D* pBackBuffer = 0;
 
 			// Lo corecto es preguntar a la cadena de intercambio (backbuffer)
-			// cual es el tama;o correcto
+			// cual es el tamaño correcto
 			m_pDXManager->GetSwapChain()->GetBuffer(0, IID_ID3D11Texture2D, (void**)&pBackBuffer);
 
 			D3D11_TEXTURE2D_DESC dtd;
@@ -218,16 +152,28 @@ unsigned long CSGame::OnEvent(CEventBase * pEvent)
 			VECTOR4D DarkGray = { 0.25, 0.25, 0.25, 1 };
 			VECTOR4D White = { 1, 1, 1, 1 };
 			VECTOR4D Gray = { .5, .5, .5, 0 };
-
+			VECTOR4D NightBlue = { 0.3, 0.2, .8, 0 };
 
 			m_pDXPainter->SetRenderTarget(m_pDXManager->GetMainRTV());
 			m_pDXPainter->m_Params.Material.Diffuse = Gray;
 			m_pDXPainter->m_Params.Material.Ambient = Gray;
 
-			VECTOR4D NightBlue = { 0.3, 0.2, .8, 0 };
-
-			m_pDXManager->GetContext()->ClearRenderTargetView(m_pDXManager->GetMainRTV(), (float*)&NightBlue);
-			m_pDXManager->GetContext()->ClearDepthStencilView(m_pDXManager->GetMainDTV(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+			//m_pDXManager->GetContext()->ClearRenderTargetView(m_pDXManager->GetMainRTV(), (float*)&NightBlue);
+			unsigned long FrameIndex[6] = { 0,1,2,2,1,3 };
+			CDXBasicPainter::VERTEX Frame[4]
+			{
+				{ { -1,1,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 0,0,0,0 } }, // Primer vertice 
+				{ { 1,1,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 1,0,0,0 } },
+				{ { -1,-1,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 0,1,0,0 } },
+				{ { 1,-1,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 1,1,0,0 } }
+			};
+			m_pDXManager->GetContext()->ClearDepthStencilView(m_pDXManager->GetMainDTV(), D3D11_CLEAR_DEPTH , 1.0f, 0);
+			m_pDXPainter->SetRenderTarget(MAIN->m_pDXManager->GetMainRTV());
+			m_pDXPainter->m_Params.View = m_pDXPainter->m_Params.World = m_pDXPainter->m_Params.Projection = Identity();
+			m_pDXPainter->m_Params.Flags1 = MAPPING_EMISSIVE;
+			m_pDXManager->GetContext()->PSSetShaderResources(4, 1, &m_pSRVBackGround);
+			m_pDXPainter->DrawIndexed(Frame, 4, FrameIndex, 6, 0);
+			
 			unsigned long TriangleIndices[3] = { 0, 1, 2 };
 
 			m_pDXPainter->m_Params.View = g_View;
@@ -235,77 +181,55 @@ unsigned long CSGame::OnEvent(CEventBase * pEvent)
 
 			m_pDXPainter->m_Params.Flags1 = 0;//MAPPING_NORMAL_TRUE | MAPPING_DIFFUSE | MAPPING_EMISSIVE;
 
-			m_pDXManager->GetDevice()->CreateShaderResourceView(g_pTexture, NULL, &pSRV);
-			m_pDXManager->GetContext()->PSSetShaderResources(0, 1, &pSRV);
 
-			m_pDXManager->GetDevice()->CreateShaderResourceView(g_pNormalMap, NULL, &pSRVNormalMap);
-			m_pDXManager->GetContext()->PSSetShaderResources(1, 1, &pSRVNormalMap);
-
-
-			m_pDXManager->GetDevice()->CreateShaderResourceView(g_pEnvMap, NULL, &pSRVEnvMap);
-			m_pDXManager->GetContext()->PSSetShaderResources(2, 1, &pSRVEnvMap);
-
-
-			m_pDXManager->GetDevice()->CreateShaderResourceView(g_pNormalMapTrue, NULL, &pSRVNormalMapTrue);
-			m_pDXManager->GetContext()->PSSetShaderResources(3, 1, &pSRVNormalMapTrue);
-
-
-			m_pDXManager->GetDevice()->CreateShaderResourceView(g_pEmissiveMap, NULL, &pSRVEmissiveMap);
-			m_pDXManager->GetContext()->PSSetShaderResources(4, 1, &pSRVEmissiveMap);
-
-			// Necesitamos un lano para la vitrina refejante ubicado 4 unidades hacia abajo
-			VECTOR4D Plane = { 0, 0, 1, 5 };
-
-			MATRIX4D OldView = m_pDXPainter->m_Params.View;
 			CDXBasicPainter::PARAMS old;
 			old = m_pDXPainter->m_Params;
 			VECTOR4D LightPos = { 0, 0, 40, 1 };
 			VECTOR4D Target = { 0, 0, 0, 1 };
 			VECTOR4D Up = { 0, 1, 0, 0 };
-			m_pDXPainter->m_Params.LightView = View(LightPos, Target, Up);
-			m_pDXPainter->m_Params.LightProjection = PerspectiveWidthHeightLH(1, 1, 1, 100);
 
-			m_pDXPainter->m_Params.View = OldView;
-			m_pDXManager->GetContext()->RSSetState(m_pDXPainter->GetDrawLHRState());
 			
 			// Dibujar mundo real
-			m_pDXPainter->m_Params.World = g_World;
+			m_pDXPainter->m_Params.World = g_WorldPlayer1;
+			m_pDXPainter->m_Params.Brightness = g_BrigthnessP1.Brightness;
 			m_pDXPainter->DrawIndexed(&g_Surface[0].m_Vertices[0], g_Surface[0].m_Vertices.size(), &g_Surface[0].m_Indices[0], g_Surface[0].m_Indices.size(), PAINTER_DRAW);
 
 			
-			m_pDXPainter->m_Params.World = a;
+			m_pDXPainter->m_Params.World = g_WorldPlayer2;
+			m_pDXPainter->m_Params.Brightness = g_BrigthnessP2.Brightness;
 			m_pDXPainter->DrawIndexed(&g_Surface[1].m_Vertices[0], g_Surface[1].m_Vertices.size(), &g_Surface[1].m_Indices[0], g_Surface[1].m_Indices.size(), PAINTER_DRAW);
+			
 			std::string s = std::to_string(counterCLicks1);
 			std::string s2 = std::to_string(counterCLicks2);
 			MATRIX4D ST = Translation(0.5, -0.5, 0)* // Centro de caracter
-						  Scaling(0.05, 0.06, 1)* //* // Tamaño del caracter
-									 //RotationZ(3.141592/4)* //Orientacion del texto
-						  Translation(-1, 1, 0); //Posicion del texto
-									 //char const* ss = s.c_str();
+						  Scaling(0.05, 0.06, 1)*    // Tamaño del caracter
+						  Translation(-1, 1, 0);     // Posicion del texto
+
 			
 			MATRIX4D ST2 = Translation(0.5, -0.5, 0)* // Centro de caracter
-				Scaling(0.05, 0.06, 1)* //* // Tamaño del caracter
-										//RotationZ(3.141592/4)* //Orientacion del texto
-				Translation(0, 1, 0); //Posicion del texto
-									   //char const* ss = s.c_str();
+				Scaling(0.05, 0.06, 1)*				  // Tamaño del caracter
+				Translation(0, 1, 0);                 //Posicion del texto
+									   
 			const char *ss = s.c_str();
 			const char *ss2 = s2.c_str();
 			MAIN->m_pTextRender->RenderText(ST, ss);
 			MAIN->m_pTextRender->RenderText(ST2, ss2);
 			m_pDXPainter->m_Params = old;
+
 			m_pDXManager->GetSwapChain()->Present(1, 0);
-			//return 0;
 		}
 		if (m_combination[0] && m_combination[1])
 		{
 			++counterCLicks1;
 			MAIN->m_pSndManager->PlayFx(1);
-			m_pDXPainter->m_Params.Brightness.x -= .04;
-			m_pDXPainter->m_Params.Brightness.y -= .04;
-			m_pDXPainter->m_Params.Brightness.z -= .04;
-			
-			g_World = Scaling(m_pDXPainter->m_Params.World.m00 + 0.07, m_pDXPainter->m_Params.World.m11 + 0.04, m_pDXPainter->m_Params.World.m22 + 0.01);
-			m_pDXPainter->m_Params.World = g_World;
+			g_BrigthnessP1.Brightness.x -= .04;
+			g_BrigthnessP1.Brightness.y -= .04;
+			g_BrigthnessP1.Brightness.z -= .04;
+
+			m_pDXPainter->m_Params.Brightness = g_BrigthnessP1.Brightness;
+			m_pDXPainter->m_Params.World = g_WorldPlayer1;
+			g_WorldPlayer1 = Translation(4, -3, -10)*Scaling(m_pDXPainter->m_Params.World.m00 + 0.07, m_pDXPainter->m_Params.World.m11 + 0.04, m_pDXPainter->m_Params.World.m22 + 0.01);
+			m_pDXPainter->m_Params.World = g_WorldPlayer1;
 			m_pDXPainter->DrawIndexed(&g_Surface[0].m_Vertices[0], g_Surface[0].m_Vertices.size(), &g_Surface[0].m_Indices[0], g_Surface[0].m_Indices.size(), PAINTER_DRAW);
 			m_pDXManager->GetSwapChain()->Present(1, 0);
 			m_combination[0] = false;
@@ -315,19 +239,22 @@ unsigned long CSGame::OnEvent(CEventBase * pEvent)
 		if (m_combination[3] && m_combination[4])
 		{
 			++counterCLicks2;
-			m_pDXPainter->m_Params.Brightness.x -= .04;
-			m_pDXPainter->m_Params.Brightness.y -= .04;
-			m_pDXPainter->m_Params.Brightness.z -= .04;
-			m_pDXPainter->m_Params.World = a;
-			a = Scaling(m_pDXPainter->m_Params.World.m00 + 0.07, m_pDXPainter->m_Params.World.m11 + 0.04, m_pDXPainter->m_Params.World.m22 + 0.01);
-			m_pDXPainter->m_Params.World = a;
+			MAIN->m_pSndManager->PlayFx(1);
+			g_BrigthnessP2.Brightness.x -= .04;
+			g_BrigthnessP2.Brightness.y -= .04;
+			g_BrigthnessP2.Brightness.z -= .04;
+
+			m_pDXPainter->m_Params.Brightness = g_BrigthnessP2.Brightness;
+			m_pDXPainter->m_Params.World = g_WorldPlayer2;
+			g_WorldPlayer2 = Translation(-3, -3, 0)*Scaling(m_pDXPainter->m_Params.World.m00 + 0.14, m_pDXPainter->m_Params.World.m11 + 0.08, m_pDXPainter->m_Params.World.m22 + 0.04);
+			m_pDXPainter->m_Params.World = g_WorldPlayer2;
 			m_pDXPainter->DrawIndexed(&g_Surface[1].m_Vertices[0], g_Surface[1].m_Vertices.size(), &g_Surface[1].m_Indices[0], g_Surface[1].m_Indices.size(), PAINTER_DRAW);
 			m_pDXManager->GetSwapChain()->Present(1, 0);
 			m_combination[3] = false;
 			m_combination[4] = false;
 		}
 
-		m_pDXPainter->m_Params.World = g_World;
+		//m_pDXPainter->m_Params.World = g_WorldPlayer1;
 		if (counterCLicks1 == 21 || counterCLicks2 == 21)
 		{
 			printf("Ya ganaste!!!");
@@ -369,6 +296,97 @@ unsigned long CSGame::OnEvent(CEventBase * pEvent)
 		}
 	}
 	return __super::OnEvent(pEvent);
+}
+
+void CSGame::LoadScene(char * filename)
+{
+	/* the global Assimp scene object */
+	const struct aiScene* scene = aiImportFile(filename, aiProcessPreset_TargetRealtime_Fast); //  aiProcessPreset_TargetRealtime_MaxQuality
+	
+	//g_Surface[].resize(scene->mNumMeshes);
+
+	for (unsigned long i = 0; i < scene->mNumMeshes; i++)
+	{
+		float maxX, maxY, maxZ;
+		float minX, minY, minZ;
+
+		maxX = maxY = maxZ = FLT_MIN;
+		minX = minY = minZ = FLT_MAX;
+
+		g_Surface[i].m_Vertices.resize(scene->mMeshes[i]->mNumVertices);
+		for (unsigned long j = 0; j < scene->mMeshes[i]->mNumVertices; j++)
+		{
+			g_Surface[i].m_Vertices[j].Position = {
+				scene->mMeshes[i]->mVertices[j].x,
+				scene->mMeshes[i]->mVertices[j].y,
+				scene->mMeshes[i]->mVertices[j].z,
+				1 };
+			if (scene->mMeshes[i]->mVertices[j].x > maxX)
+				maxX = scene->mMeshes[i]->mVertices[j].x;
+			if (scene->mMeshes[i]->mVertices[j].y > maxY)
+				maxY = scene->mMeshes[i]->mVertices[j].y;
+			if (scene->mMeshes[i]->mVertices[j].z > maxZ)
+				maxZ = scene->mMeshes[i]->mVertices[j].z;
+
+			if (scene->mMeshes[i]->mVertices[j].x < minX)
+				minX = scene->mMeshes[i]->mVertices[j].x;
+			if (scene->mMeshes[i]->mVertices[j].y < minY)
+				minY = scene->mMeshes[i]->mVertices[j].y;
+			if (scene->mMeshes[i]->mVertices[j].z < minZ)
+				minZ = scene->mMeshes[i]->mVertices[j].z;
+		}
+
+
+
+		MATRIX4D t;
+		t.m00 = scene->mRootNode->mChildren[i]->mTransformation.a1;
+		t.m01 = scene->mRootNode->mChildren[i]->mTransformation.a2;
+		t.m02 = scene->mRootNode->mChildren[i]->mTransformation.a3;
+		t.m03 = scene->mRootNode->mChildren[i]->mTransformation.a4;
+		t.m10 = scene->mRootNode->mChildren[i]->mTransformation.b1;
+		t.m11 = scene->mRootNode->mChildren[i]->mTransformation.b2;
+		t.m12 = scene->mRootNode->mChildren[i]->mTransformation.b3;
+		t.m13 = scene->mRootNode->mChildren[i]->mTransformation.b4;
+		t.m20 = scene->mRootNode->mChildren[i]->mTransformation.c1;
+		t.m21 = scene->mRootNode->mChildren[i]->mTransformation.c2;
+		t.m22 = scene->mRootNode->mChildren[i]->mTransformation.c3;
+		t.m23 = scene->mRootNode->mChildren[i]->mTransformation.c4;
+		t.m30 = scene->mRootNode->mChildren[i]->mTransformation.d1;
+		t.m31 = scene->mRootNode->mChildren[i]->mTransformation.d2;
+		t.m32 = scene->mRootNode->mChildren[i]->mTransformation.d3;
+		t.m33 = scene->mRootNode->mChildren[i]->mTransformation.d4;
+
+		//g_Surface[i].m_World = Transpose(t);
+
+		g_Surface[i].m_Indices.resize(scene->mMeshes[i]->mNumFaces * scene->mMeshes[i]->mFaces[0].mNumIndices);
+		for (unsigned long j = 0; j < scene->mMeshes[i]->mNumFaces; j++)
+		{
+			for (unsigned long k = 0; k < scene->mMeshes[i]->mFaces[j].mNumIndices; k++)
+			{
+				g_Surface[i].m_Indices[j*scene->mMeshes[i]->mFaces[j].mNumIndices + k] = scene->mMeshes[i]->mFaces[j].mIndices[k];
+			}
+		}
+
+		for (unsigned long j = 0; j < g_Surface[i].m_Vertices.size(); j++)
+		{
+			VECTOR4D TexCoord = { 0,0,0,0 };
+			TexCoord.x = g_Surface[i].m_Vertices[j].Position.x;
+			TexCoord.y = g_Surface[i].m_Vertices[j].Position.z;
+			TexCoord.z = g_Surface[i].m_Vertices[j].Position.y;
+			TexCoord = Normalize(TexCoord);
+			TexCoord.x = TexCoord.x * 0.5 + 0.5;
+			TexCoord.y = TexCoord.y * 0.5 + 0.5;
+
+			g_Surface[i].m_Vertices[j].TexCoord = TexCoord;
+		}
+		//g_Scene[i].Optimize();
+		g_Surface[i].BuildTangentSpaceFromTexCoordsIndexed(true);
+		//g_Surface[i].GenerarCentroides();
+
+		/* Set id */
+		//g_Surface[i].m_lID = i;
+		//strcpy(g_Surface[i].m_cName, scene->mMeshes[i]->mName.C_Str());
+	}
 }
 
 void CSGame::OnExit(void)
