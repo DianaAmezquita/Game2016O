@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "DXTextRenderer.h"
 #include "Graphics\ImageBMP.h"
+#include "SMain.h"
 
 CDXTextRenderer::CDXTextRenderer(CDXManager* pManager, CDXBasicPainter* pPainter)
 {
@@ -90,6 +91,8 @@ void CDXTextRenderer::RenderText(MATRIX4D W, char const* pszText)
 		}
 		pszText++;
 	}
+	
+	m_pOwner->GetContext()->OMSetBlendState(NULL, NULL, -1);
 }
 
 void CDXTextRenderer::Uninitialize()

@@ -15,10 +15,11 @@ private:
 	struct Player
 	{
 		MATRIX4D world;
-		VECTOR4D brightness = { 1,1,1,1 };
+		VECTOR4D brightness = { 0,0,0,0 };
 		bool combination[3] = { false, false, false };
 		unsigned int counterClicks = 0;
 	};
+	void printCounter(const unsigned int nCounter, MATRIX4D& ST);
 public:
 	Player players[4];
 	//CDXBasicPainter::PARAMS old;

@@ -225,7 +225,6 @@ unsigned long CSMainMenu::OnEvent(CEventBase* pEvent)
 
 		MATRIX4D ST = Translation(0.5,-0.5,0)* // Centro de caracter
 			Scaling(0.05,0.06,1)* // Tamaño del caracter
-			//RotationZ(3.141592/4)* //Orientacion del texto
 			Translation(-1,1,0); //Posicion del texto
 
 		//MAIN->m_pDXManager->GetContext()->OMSetBlendState(NULL, NULL, -1);
