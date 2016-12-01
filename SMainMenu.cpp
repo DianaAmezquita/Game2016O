@@ -134,7 +134,7 @@ unsigned long CSMainMenu::OnEvent(CEventBase* pEvent)
 			Painter->DrawIndexed(Frame1, 4, FrameIndex, 6, 0);
 			MAIN->m_pDXManager->GetSwapChain()->Present(1, 0);
 			m_pSMOwner->Transition(CLSID_CSGame);
-			InvalidateRect(MAIN->m_hWnd, NULL, false);
+			InvalidateRect(MAIN->m_hWnd, NULL, true);
 			return 0; // nunca se nosolvide retornar 0 para que no existe access violation
 		}
 		if (pInput->m_nAction == JOY_BUTTON_B_PRESSED)

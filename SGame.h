@@ -15,10 +15,13 @@ private:
 	struct Player
 	{
 		MATRIX4D world;
-		VECTOR4D brightness;
-		unsigned int counterClicks;
+		VECTOR4D brightness = { 1,1,1,1 };
+		bool combination[3] = { false, false, false };
+		unsigned int counterClicks = 0;
 	};
 public:
+	Player players[4];
+	//CDXBasicPainter::PARAMS old;
 	ID3D11ShaderResourceView* m_pSRVBackGround;
 	MATRIX4D g_WorldPlayer1;
 	MATRIX4D g_WorldPlayer2;
