@@ -8,27 +8,41 @@
 #define SND_GAME 4
 
 #define CLSID_CSGame 0x0f347dcbb
+#define MAX_PLAYERS 4
 class CSGame :
 	public CStateBase
 {
 private:
+	struct POS{
+		union {
+			struct {
+				float x;
+				float y;
+				float z;
+			};
+			float p[3];
+		};
+	};
 	struct Player
 	{
+		CMeshMathSurface g_Surface;
 		MATRIX4D world;
+		MATRIX4D scalationFactor;
 		VECTOR4D brightness = { 0,0,0,0 };
+		MATRIX4D counterPosition;
 		bool combination[3] = { false, false, false };
 		unsigned int counterClicks = 0;
+		POS position;
 	};
 	void printCounter(const unsigned int nCounter, MATRIX4D& ST);
+	void initializePositions();
+	void initializeCounterPositions();
 public:
-	Player players[4];
+	Player players[MAX_PLAYERS];
 	//CDXBasicPainter::PARAMS old;
 	ID3D11ShaderResourceView* m_pSRVBackGround;
-	MATRIX4D g_WorldPlayer1;
-	MATRIX4D g_WorldPlayer2;
-	CDXBasicPainter::PARAMS g_BrigthnessP1;
-	CDXBasicPainter::PARAMS g_BrigthnessP2;
-	bool m_combination[6];
+	ID3D11ShaderResourceView* m_pSRVBackGround2;
+	bool changeBackground = true;
 	CDXManager*  m_pDXManager;
 	CDXBasicPainter* m_pDXPainter;
 	float g_iWidth;
@@ -50,9 +64,7 @@ public:
 
 	ID3D11Texture2D* g_pNormalMap;
 	ID3D11Texture2D* g_pEnvMap;
-	CMeshMathSurface g_Surface[2];
-	unsigned int counterCLicks1;
-	unsigned int counterCLicks2;
+
 	bool m_bInitializationCorrect;
 	unsigned long GetClassID() { return CLSID_CSGame; }
 	const char* GetClassString() { return "CSGame"; }
