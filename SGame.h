@@ -9,6 +9,7 @@
 
 #define CLSID_CSGame 0x0f347dcbb
 #define MAX_PLAYERS 4
+#define SCORE 11
 class CSGame :
 	public CStateBase
 {
@@ -23,14 +24,22 @@ private:
 			float p[3];
 		};
 	};
+	struct Sequence
+	{
+		int counter = 0;
+		bool combination[3] = { false, false, false };
+		char comChar[3] = { ' ',' ',' ' };
+	};
 	struct Player
 	{
 		CMeshMathSurface g_Surface;
 		MATRIX4D world;
 		MATRIX4D scalationFactor;
 		VECTOR4D brightness = { 0,0,0,0 };
+		VECTOR4D color;
 		MATRIX4D counterPosition;
 		bool combination[3] = { false, false, false };
+		Sequence buttons;
 		unsigned int counterClicks = 0;
 		POS position;
 	};
@@ -39,10 +48,18 @@ private:
 	void initializeCounterPositions();
 public:
 	Player players[MAX_PLAYERS];
-	//CDXBasicPainter::PARAMS old;
 	ID3D11ShaderResourceView* m_pSRVBackGround;
 	ID3D11ShaderResourceView* m_pSRVBackGround2;
+	ID3D11ShaderResourceView* m_pSRVButtonAB;
+	ID3D11ShaderResourceView* m_pSRVButtonABPressed;
+	ID3D11ShaderResourceView* m_pSRVButtonBA;
+	ID3D11ShaderResourceView* m_pSRVButtonBAPressed;
+	ID3D11ShaderResourceView* m_pSRVTexture;
+	//ID3D11Texture2D* m_pTexture;
 	bool changeBackground = true;
+	bool AB = true;
+	bool freqButBackground = true;
+	char correctCombination[3] = { 'a','b',' ' };
 	CDXManager*  m_pDXManager;
 	CDXBasicPainter* m_pDXPainter;
 	float g_iWidth;
@@ -68,7 +85,7 @@ public:
 	bool m_bInitializationCorrect;
 	unsigned long GetClassID() { return CLSID_CSGame; }
 	const char* GetClassString() { return "CSGame"; }
-	void LoadScene(char * filename);
+	void LoadScene(char * filename, const unsigned int p);
 public:
 	CSGame();
 	virtual ~CSGame();

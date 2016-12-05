@@ -34,69 +34,97 @@ void CSGame::OnEntry(void)
 	VECTOR4D Target = { 0, 0, 0, 1 };
 	VECTOR4D Up = { 0, 0, 1, 0 };
 
-
 	// Se obtiene el m_pDXManager y m_pDXPainter del main
 	m_pDXManager = p_main->m_pDXManager;
 	m_pDXPainter = p_main->m_pDXPainter;
 
-	//LoadScene("..\\Assets\\Bowser.blend");
-
+	// Se inicializan las posiciones de los contadores 
 	initializeCounterPositions();
-
-	
+	// Se inicializan las posiciones de los jugadores
+	initializePositions();
 
 	// Se establece la matrix de vista y de proyeccion para el juego en general
 	g_View = View(EyePos, Target, Up);
 	g_Projection = PerspectiveWidthHeightLH(0.05, 0.05, 0.1, 100);
 
-	initializePositions();
 	// Se cargan las mallas de todos los jugadores
 	for (int i = 0; i < MAX_PLAYERS; i++)
 	{
-		players[i].g_Surface.LoadSuzanne();
-		players[i].g_Surface.BuildTangentSpaceFromTexCoordsIndexed(true);
-		players[i].g_Surface.SetColor(White, White, White, White);
-		players[i].world = Translation(players[i].position.x, players[i].position.y, players[i].position.z) * Identity();
+		//players[i].g_Surface.LoadSuzanne();
+		//players[i].g_Surface.BuildTangentSpaceFromTexCoordsIndexed(true);
+		LoadScene("..\\Assets\\Toad.blend", i);
+		//players[i].g_Surface.SetColor(White, White, White, White);
+		players[i].world =  Translation(players[i].position.x, players[i].position.y, players[i].position.z) * Scaling(.05,.05,.05)*RotationZ(3.9)*Identity();
 		players[i].scalationFactor = players[i].world;
-		players[i].g_Surface.BuildTangentSpaceFromTexCoordsIndexed(true);
 	}
-
-
-	//players[0].world = Translation(-20, 5, 0)*Identity();
-	//players[0].scalationFactor = players[0].world;
-	//players[1].world = Translation(5, -20, 0)*Identity();
-	//players[1].scalationFactor = players[1].world;
-	//players[0].g_Surface.BuildTangentSpaceFromTexCoordsIndexed(true);
-	//players[1].g_Surface.BuildTangentSpaceFromTexCoordsIndexed(true);
-	
 	
 	// Se carga la imagen bmp en un recurso de fondo de tipo  CImageBMP
 	printf("Cargando recurso de fondo...\n");
 	fflush(stdout);
 	auto img = CImageBMP::CreateBitmapFromFile("..\\Assets\\Bowser_4By4_Blocks_Character04.bmp", NULL);
-	if (!img)
-	{
+	if (!img){
 		printf("Recurso no encontrado\n");
 		fflush(stdout);
 	}
-	else
-	{
+	else{
 		auto tex = img->CreateTexture(MAIN->m_pDXManager);
 		MAIN->m_pDXManager->GetDevice()->CreateShaderResourceView(tex, NULL, &m_pSRVBackGround);
 	}
-
 	img = CImageBMP::CreateBitmapFromFile("..\\Assets\\Bowser_4By4_Blocks_Character04_02.bmp", NULL);
-	if (!img)
-	{
+	if (!img){
 		printf("Recurso no encontrado\n");
 		fflush(stdout);
 	}
-	else
-	{
+	else{
 		auto tex = img->CreateTexture(MAIN->m_pDXManager);
 		MAIN->m_pDXManager->GetDevice()->CreateShaderResourceView(tex, NULL, &m_pSRVBackGround2);
 	}
+	img = CImageBMP::CreateBitmapFromFile("..\\Assets\\A_Plus_B.bmp", NULL);
+	if (!img) {
+		printf("Recurso no encontrado\n");
+		fflush(stdout);
+	}
+	else {
+		auto tex = img->CreateTexture(MAIN->m_pDXManager);
+		MAIN->m_pDXManager->GetDevice()->CreateShaderResourceView(tex, NULL, &m_pSRVButtonAB);
+	}
+	img = CImageBMP::CreateBitmapFromFile("..\\Assets\\A_Plus_B_Pressed.bmp", NULL);
+	if (!img) {
+		printf("Recurso no encontrado\n");
+		fflush(stdout);
+	}
+	else {
+		auto tex = img->CreateTexture(MAIN->m_pDXManager);
+		MAIN->m_pDXManager->GetDevice()->CreateShaderResourceView(tex, NULL, &m_pSRVButtonABPressed);
+	}
+	img = CImageBMP::CreateBitmapFromFile("..\\Assets\\B_Plus_A.bmp", NULL);
+	if (!img) {
+		printf("Recurso no encontrado\n");
+		fflush(stdout);
+	}
+	else {
+		auto tex = img->CreateTexture(MAIN->m_pDXManager);
+		MAIN->m_pDXManager->GetDevice()->CreateShaderResourceView(tex, NULL, &m_pSRVButtonBA);
+	}
+	img = CImageBMP::CreateBitmapFromFile("..\\Assets\\B_Plus_A_Pressed.bmp", NULL);
+	if (!img) {
+		printf("Recurso no encontrado\n");
+		fflush(stdout);
+	}
+	else {
+		auto tex = img->CreateTexture(MAIN->m_pDXManager);
+		MAIN->m_pDXManager->GetDevice()->CreateShaderResourceView(tex, NULL, &m_pSRVButtonBAPressed);
+	}
 
+	img = CImageBMP::CreateBitmapFromFile("..\\Assets\\02toad.bmp", NULL);
+	if (!img) {
+		printf("Recurso no encontrado\n");
+		fflush(stdout);
+	}
+	else {
+		auto tex = img->CreateTexture(MAIN->m_pDXManager);
+		MAIN->m_pDXManager->GetDevice()->CreateShaderResourceView(tex, NULL, &m_pSRVTexture);
+	}
 	// Se limpia la mezcladora de sonido ya que vino de otro estado
 	// Tambien se carga el nuevo recurso de sonido y se empieza su
 	// reproduccion
@@ -109,24 +137,26 @@ void CSGame::OnEntry(void)
 	// Se carga el recurso de presionado de boton
 	MAIN->m_pSndManager->LoadSoundFx(L"..\\Assets\\Blow.wav", 1);
 	m_pDXPainter->m_Params.Brightness = { 0,0,0,0 };
-
+	//m_pDXPainter->m_Params.Material.Ambient = { 255,255,255,0 };
+	SetTimer(MAIN->m_hWnd, 1, 1000, NULL);
+	SetTimer(MAIN->m_hWnd, 2, 4500, NULL);
 }
 
 unsigned long CSGame::OnEvent(CEventBase * pEvent)
 {
+	// Evento de JoyStick
 	if (ACTION_EVENT == pEvent->m_ulEventType)
 	{
 		CActionEvent *Action = (CActionEvent*)pEvent;
-
 		if (JOY_BUTTON_A_PRESSED == Action->m_nAction)
 		{
-			players[Action->m_nSource].combination[0] = true;
-			players[Action->m_nSource].combination[2] = true;
+			players[Action->m_nSource].buttons.comChar[players[Action->m_nSource].buttons.counter] = 'a';
+			players[Action->m_nSource].buttons.counter++;
 		}
-		if (players[Action->m_nSource].combination[2] && JOY_BUTTON_B_PRESSED == Action->m_nAction)
+		if (JOY_BUTTON_B_PRESSED == Action->m_nAction)
 		{
-			players[Action->m_nSource].combination[2] = false;
-			players[Action->m_nSource].combination[1] = true;
+			players[Action->m_nSource].buttons.comChar[players[Action->m_nSource].buttons.counter] = 'b';
+			players[Action->m_nSource].buttons.counter++;
 		}
 	}
 
@@ -154,16 +184,15 @@ unsigned long CSGame::OnEvent(CEventBase * pEvent)
 			g_iWidth = dtd.Width;
 			g_iHeight = dtd.Height;
 			// Ahora creamos la textura 
-
 			SAFE_RELEASE(pBackBuffer);
 			
 			
-
-
+			// Se adapta al tamaño de la pantalla
 			MATRIX4D AC = Scaling((float)g_iHeight / g_iWidth, 1, 1);
 
 			
-
+			// Se crean los indices y el cuadro para presentar la imagen precargada
+			// del fondo del juego.
 			unsigned long FrameIndex[6] = { 0,1,2,2,1,3 };
 			CDXBasicPainter::VERTEX Frame[4]
 			{
@@ -178,7 +207,6 @@ unsigned long CSGame::OnEvent(CEventBase * pEvent)
 			// razon necesitamos igualar las matrices de vista,
 			// mundo y proyeccion a la identidad.
 			m_pDXPainter->m_Params.View = m_pDXPainter->m_Params.World = m_pDXPainter->m_Params.Projection = Identity(); 
-			
 			m_pDXPainter->m_Params.Flags1 = MAPPING_EMISSIVE;
 			if (changeBackground)
 			{
@@ -188,36 +216,70 @@ unsigned long CSGame::OnEvent(CEventBase * pEvent)
 			{
 				m_pDXManager->GetContext()->PSSetShaderResources(4, 1, &m_pSRVBackGround2);
 			}
-			
 			m_pDXPainter->DrawIndexed(Frame, 4, FrameIndex, 6, 0);
 
+			CDXBasicPainter::VERTEX FrameButton[4]
+			{
+				{ { -0.25,0.4,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 0,0,0,0 } }, // Primer vertice 
+				{ { 0.25,0.4,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 1,0,0,0 } },
+				{ { -0.25,0,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 0,1,0,0 } },
+				{ { 0.25,0,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 1,1,0,0 } }
+			};
+			if (AB)
+			{
+				if (freqButBackground)
+					m_pDXManager->GetContext()->PSSetShaderResources(4, 1, &m_pSRVButtonAB);
+				else
+					m_pDXManager->GetContext()->PSSetShaderResources(4, 1, &m_pSRVButtonABPressed);
+			}
+			else
+			{
+				if (freqButBackground)
+					m_pDXManager->GetContext()->PSSetShaderResources(4, 1, &m_pSRVButtonBA);
+				else
+					m_pDXManager->GetContext()->PSSetShaderResources(4, 1, &m_pSRVButtonBAPressed);
+			}
 			
+			m_pDXPainter->DrawIndexed(FrameButton, 4, FrameIndex, 6, 0);
+
+
+			// Ya se cambia a la matriz de vista y de proyeccion para
+			// el juego en 3D
 			m_pDXPainter->m_Params.View = g_View;
 			m_pDXPainter->m_Params.Projection = g_Projection*AC;			
-			m_pDXPainter->m_Params.Flags1 = 0;//MAPPING_NORMAL_TRUE | MAPPING_DIFFUSE | MAPPING_EMISSIVE;
-
-
-		
-
+			m_pDXPainter->m_Params.Flags1 = MAPPING_DIFFUSE;//MAPPING_NORMAL_TRUE | MAPPING_DIFFUSE | MAPPING_EMISSIVE;
+			VECTOR4D Gray = { .5,.5,.5,0 };
+			//m_pDXPainter->m_Params.Material.Diffuse = Gray;
+			//m_pDXPainter->m_Params.Material.Ambient = Gray;
+			
 			CDXBasicPainter::PARAMS old;
 			old = m_pDXPainter->m_Params;
-
+			//m_pDXPainter->m_Params.Flags1 = MAPPING_DIFFUSE;
+			m_pDXManager->GetContext()->PSSetShaderResources(0, 1, &m_pSRVTexture);
 			for (int i = 0; i < MAX_PLAYERS; i++)
 			{
 				m_pDXPainter->m_Params.Brightness = players[i].brightness;
 				m_pDXPainter->m_Params.World = players[i].world;
+		
+				for (int j = 0; j < players[i].g_Surface.m_Vertices.size(); j++)
+				{
+					players[i].g_Surface.m_Vertices[j].Color = players[i].color;
+				}
+				
 				m_pDXPainter->DrawIndexed(&players[i].g_Surface.m_Vertices[0], players[i].g_Surface.m_Vertices.size(), &players[i].g_Surface.m_Indices[0], players[i].g_Surface.m_Indices.size(), PAINTER_DRAW);
 			}
 
-		
+			//m_pDXPainter->m_Params = old;
 			printCounter(players[0].counterClicks, players[0].counterPosition);
 			printCounter(players[1].counterClicks, players[1].counterPosition);
 			printCounter(players[2].counterClicks, players[2].counterPosition);
 			printCounter(players[3].counterClicks, players[3].counterPosition);
-
+			m_pDXPainter->m_Params = old;
 			for (int i = 0; i < MAX_PLAYERS; i++)
 			{
-				if (players[i].combination[0] && players[i].combination[1])
+				if (players[i].buttons.comChar[0] == correctCombination[0] &&
+					players[i].buttons.comChar[1] == correctCombination[1] &&
+					players[i].buttons.comChar[2] == correctCombination[2])//(players[i].combination[0] && players[i].combination[1])
 				{
 					players[i].counterClicks++;
 					MAIN->m_pSndManager->PlayFx(1);
@@ -227,13 +289,21 @@ unsigned long CSGame::OnEvent(CEventBase * pEvent)
 					players[i].brightness.z += .015;
 
 
-					players[i].world = Scaling(players[i].scalationFactor.m00 + 0.04, players[i].scalationFactor.m11 + 0.01, players[i].scalationFactor.m22 + 0.008)*players[i].world;
+					players[i].world = Scaling(1.02, 1.02, 1.02)*players[i].world;
 					m_pDXPainter->m_Params.World = players[i].world;
+					m_pDXPainter->m_Params.Brightness = players[i].brightness;
 					m_pDXPainter->DrawIndexed(&players[i].g_Surface.m_Vertices[0], players[i].g_Surface.m_Vertices.size(), &players[i].g_Surface.m_Indices[0], players[i].g_Surface.m_Indices.size(), PAINTER_DRAW);
 
-					players[i].combination[0] = false;
-					players[i].combination[1] = false;
+					for (int k = 0; k < 3; k++)
+						players[i].buttons.comChar[k] = ' ';
+					players[i].buttons.counter = 0;
 					changeBackground == true ? changeBackground = false : changeBackground = true;
+				}
+				else if (players[i].buttons.counter == 2)
+				{
+					for (int k = 0; k < 3; k++)
+						players[i].buttons.comChar[k] = ' ';
+					players[i].buttons.counter = 0;
 				}
 			}
 			
@@ -243,12 +313,16 @@ unsigned long CSGame::OnEvent(CEventBase * pEvent)
 			m_pDXManager->GetSwapChain()->Present(1, 0);
 		}
 
-		
-
-		//m_pDXPainter->m_Params.World = g_WorldPlayer1;
-		if (players[0].counterClicks == 31 || players[1].counterClicks == 31)
+		// Verificamos si hay algun ganador
+		if (players[0].counterClicks == SCORE || players[1].counterClicks == SCORE ||
+			players[2].counterClicks == SCORE || players[3].counterClicks == SCORE)
 		{
 			printf("Ya ganaste!!!");
+			players[0].counterClicks == SCORE ? MAIN->winner = 0 :
+				players[1].counterClicks == SCORE ? MAIN->winner = 1 :
+				players[2].counterClicks == SCORE ? MAIN->winner = 2 :
+				players[3].counterClicks == SCORE ? MAIN->winner = 3 : MAIN->winner = 1000;
+
 			MAIN->win = true;
 			m_pSMOwner->Transition(CLSID_CSGameOver);
 			return 0; // nunca se nos olvide retornar 0 para que no existe access violation
@@ -268,19 +342,34 @@ unsigned long CSGame::OnEvent(CEventBase * pEvent)
 			}
 			if ('v' == pWin32->m_wParam)
 			{
-				//++counterCLicks1;
-				//MAIN->m_pSndManager->PlayFx(1);
-				//m_pDXPainter->m_Params.Brightness.x -= .04;
-				//m_pDXPainter->m_Params.Brightness.y -= .04;
-				//m_pDXPainter->m_Params.Brightness.z -= .04;
-				//m_pDXPainter->m_Params.World = Scaling(m_pDXPainter->m_Params.World.m00 + 0.07, m_pDXPainter->m_Params.World.m11 + 0.04, m_pDXPainter->m_Params.World.m22 + 0.01);
-				//m_pDXPainter->DrawIndexed(&g_Surface[0].m_Vertices[0], g_Surface[0].m_Vertices.size(), &g_Surface[0].m_Indices[0], g_Surface[0].m_Indices.size(), PAINTER_DRAW);
-				//m_pDXManager->GetSwapChain()->Present(1, 0);
-				//m_combination[0] = false;
-				//m_combination[1] = false;
+
 			}
 			break;
-		
+		case WM_TIMER:
+		{
+			if (1 == pWin32->m_wParam)
+			{
+				freqButBackground == true ? freqButBackground = false : freqButBackground = true;
+			}
+			if (2 == pWin32->m_wParam)
+			{
+				AB == true ? AB = false : AB = true;
+				if (AB)
+				{
+					correctCombination[0] = 'a';
+					correctCombination[1] = 'b';
+					correctCombination[2] = ' ';
+				}
+				else
+				{
+					correctCombination[0] = 'b';
+					correctCombination[1] = 'a';
+					correctCombination[2] = ' ';
+				}
+			}
+
+		}
+			break;
 		case WM_CLOSE:
 			m_pSMOwner->Transition(CLSID_CStateNull);
 			return 0;
@@ -289,20 +378,23 @@ unsigned long CSGame::OnEvent(CEventBase * pEvent)
 	return __super::OnEvent(pEvent);
 }
 
-void CSGame::LoadScene(char * filename)
+void CSGame::LoadScene(char * filename, const unsigned int p)
 {
 	/* the global Assimp scene object */
 	const struct aiScene* scene = aiImportFile(filename, aiProcessPreset_TargetRealtime_Fast); //  aiProcessPreset_TargetRealtime_MaxQuality
 	
-	//g_Surface[].resize(scene->mNumMeshes);
-
+	int aux = scene->mNumMeshes;
 	for (unsigned long i = 0; i < scene->mNumMeshes; i++)
 	{
-
-		players[0].g_Surface.m_Vertices.resize(scene->mMeshes[i]->mNumVertices);
-
-
-
+		players[p].g_Surface.m_Vertices.resize(scene->mMeshes[i]->mNumVertices);
+		for (unsigned long j = 0; j < scene->mMeshes[i]->mNumVertices; j++)
+		{
+			players[p].g_Surface.m_Vertices[j].Position = {
+				scene->mMeshes[i]->mVertices[j].x,
+				scene->mMeshes[i]->mVertices[j].y,
+				scene->mMeshes[i]->mVertices[j].z,
+				1 };
+		}
 		MATRIX4D t;
 		t.m00 = scene->mRootNode->mChildren[i]->mTransformation.a1;
 		t.m01 = scene->mRootNode->mChildren[i]->mTransformation.a2;
@@ -321,38 +413,35 @@ void CSGame::LoadScene(char * filename)
 		t.m32 = scene->mRootNode->mChildren[i]->mTransformation.d3;
 		t.m33 = scene->mRootNode->mChildren[i]->mTransformation.d4;
 
-		players[0].world = Transpose(t);
+		players[p].world = Transpose(t);
 
-		players[0].g_Surface.m_Indices.resize(scene->mMeshes[i]->mNumFaces * scene->mMeshes[i]->mFaces[0].mNumIndices);
+		players[p].g_Surface.m_Indices.resize(scene->mMeshes[i]->mNumFaces * scene->mMeshes[i]->mFaces[0].mNumIndices);
 		for (unsigned long j = 0; j < scene->mMeshes[i]->mNumFaces; j++)
 		{
 			for (unsigned long k = 0; k < scene->mMeshes[i]->mFaces[j].mNumIndices; k++)
 			{
-				players[0].g_Surface.m_Indices[j*scene->mMeshes[i]->mFaces[j].mNumIndices + k] = scene->mMeshes[i]->mFaces[j].mIndices[k];
+				players[p].g_Surface.m_Indices[j*scene->mMeshes[i]->mFaces[j].mNumIndices + k] = scene->mMeshes[i]->mFaces[j].mIndices[k];
 			}
 		}
 
-		for (unsigned long j = 0; j < players[0].g_Surface.m_Vertices.size(); j++)
+		for (unsigned long j = 0; j < players[p].g_Surface.m_Vertices.size(); j++)
 		{
 			VECTOR4D TexCoord = { 0,0,0,0 };
-			TexCoord.x = players[0].g_Surface.m_Vertices[j].Position.x;
-			TexCoord.y = players[0].g_Surface.m_Vertices[j].Position.z;
-			TexCoord.z = players[0].g_Surface.m_Vertices[j].Position.y;
+			TexCoord.x = players[p].g_Surface.m_Vertices[j].Position.x;
+			TexCoord.y = players[p].g_Surface.m_Vertices[j].Position.z;
+			TexCoord.z = players[p].g_Surface.m_Vertices[j].Position.y;
 			TexCoord = Normalize(TexCoord);
 			TexCoord.x = TexCoord.x * 0.5 + 0.5;
 			TexCoord.y = TexCoord.y * 0.5 + 0.5;
 
-			players[0].g_Surface.m_Vertices[j].TexCoord = TexCoord;
+			players[p].g_Surface.m_Vertices[j].TexCoord = TexCoord;
 		}
 
-		players[0].g_Surface.BuildTangentSpaceFromTexCoordsIndexed(true);
-		//g_Surface[i].GenerarCentroides();
+		players[p].g_Surface.BuildTangentSpaceFromTexCoordsIndexed(true);
 
-		/* Set id */
-		//g_Surface[i].m_lID = i;
-		//strcpy(g_Surface[i].m_cName, scene->mMeshes[i]->mName.C_Str());
 	}
 }
+
 void CSGame::printCounter(const unsigned int nCounter, MATRIX4D& ST)
 {
 	std::string s = std::to_string(nCounter);
@@ -360,6 +449,7 @@ void CSGame::printCounter(const unsigned int nCounter, MATRIX4D& ST)
 	MAIN->m_pTextRender->RenderText(ST, ss);
 
 }
+
 void CSGame::initializeCounterPositions()
 {
 	// Se establece los contadores iniciales en 0
@@ -386,24 +476,30 @@ void CSGame::initializeCounterPositions()
 		Scaling(0.05, 0.06, 1)*			// Tamaño del caracter
 		Translation(0.1, -0.1, 0);      //Posicion del texto
 }
+
 void CSGame::initializePositions()
 {
-	players[0].position.x = -20;
-	players[0].position.y = 5;
+	players[0].position.x = 380;
+	players[0].position.y = 50;
 	players[0].position.z = 0;
+	players[0].color = { 1,0,0,0 };
 
-	players[1].position.x = 9;
-	players[1].position.y = -24;
+	players[1].position.x = -420;
+	players[1].position.y = 70;
 	players[1].position.z = 0;
+	players[1].color = { 1,0,1,0 };
 
-	players[2].position.x = -5;
-	players[2].position.y = 18;
-	players[2].position.z = 0;
+	players[2].position.x = 380;
+	players[2].position.y = -270;
+	players[2].position.z = -140;
+	players[2].color = { 0,0,1,0 };
 
-	players[3].position.x = 18;
-	players[3].position.y = -5;
-	players[3].position.z = 0;
+	players[3].position.x = -400;
+	players[3].position.y = -270;
+	players[3].position.z = -140;
+	players[3].color = { 0,1,1,0 };
 }
+
 void CSGame::OnExit(void)
 {
 	SAFE_RELEASE(pSRVNormalMap);

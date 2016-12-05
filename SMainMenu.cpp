@@ -9,10 +9,7 @@
 CSMainMenu::CSMainMenu()
 {
 	m_pSRVBackGround = NULL;
-	m_pSRVMainOption1 = NULL;
-	m_pSRVMainOption2 = NULL;
 	m_pSRVSelectionBar = NULL;
-	//m_pTextRender = NULL;
 }
 
 
@@ -32,7 +29,7 @@ void CSMainMenu::OnEntry()
 	{
 		printf("Cargando recurso de fondo...\n");
 		fflush(stdout);
-		auto img = CImageBMP::CreateBitmapFromFile("..\\Assets\\MainMenu.bmp", NULL);
+		auto img = CImageBMP::CreateBitmapFromFile("..\\Assets\\01BowserMainMenu.bmp", NULL);
 		if (!img)
 		{
 			printf("Recurso no encontrado\n");
@@ -45,37 +42,7 @@ void CSMainMenu::OnEntry()
 		}
 	}
 	{
-		printf("Cargando recurso de opcion 1...\n");
-		fflush(stdout);
-		auto img = CImageBMP::CreateBitmapFromFile("..\\Assets\\MainOption1.bmp", NULL);
-		if (!img)
-		{
-			printf("Recurso no encontrado\n");
-			fflush(stdout);
-		}
-		else
-		{
-			auto tex = img->CreateTexture(MAIN->m_pDXManager);
-			MAIN->m_pDXManager->GetDevice()->CreateShaderResourceView(tex, NULL, &m_pSRVMainOption1);
-		}
-	}
-	{
-		printf("Cargando recurso de Opcion 2...\n");
-		fflush(stdout);
-		auto img = CImageBMP::CreateBitmapFromFile("..\\Assets\\MainOption2.bmp", NULL);
-		if (!img)
-		{
-			printf("Recurso no encontrado\n");
-			fflush(stdout);
-		}
-		else
-		{
-			auto tex = img->CreateTexture(MAIN->m_pDXManager);
-			MAIN->m_pDXManager->GetDevice()->CreateShaderResourceView(tex, NULL, &m_pSRVMainOption2);
-		}
-	}
-	{
-		printf("Cargando recurso de Opcion 2...\n");
+		printf("Cargando recurso de la barra...\n");
 		fflush(stdout);
 		auto img = CImageBMP::CreateBitmapFromFile("..\\Assets\\SelectionBar.bmp", NULL);
 		if (!img)
@@ -103,8 +70,6 @@ void CSMainMenu::OnEntry()
 void CSMainMenu::OnExit()
 {
 	SAFE_RELEASE(m_pSRVBackGround);
-	SAFE_RELEASE(m_pSRVMainOption1);
-	SAFE_RELEASE(m_pSRVMainOption2);
 	SAFE_RELEASE(m_pSRVSelectionBar);
 }
 
@@ -120,10 +85,10 @@ unsigned long CSMainMenu::OnEvent(CEventBase* pEvent)
 			auto Ctx = MAIN->m_pDXManager->GetContext();
 			CDXBasicPainter::VERTEX Frame1[4]
 			{
-				{ { -0.5,2.0f / 5.0f,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 0,0,0,0 } }, // Primer vertice 
-				{ { 0.5,2.0f / 5.0f,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 1,0,0,0 } },
-				{ { -0.5,1.0f / 3.0f,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 0,1,0,0 } },
-				{ { 0.5,1.0f / 3.0f,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 1,1,0,0 } }
+				{ { -0.19,0.3,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 0,0,0,0 } }, // Primer vertice 
+				{ { 0.18,0.3,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 1,0,0,0 } },
+				{ { -0.19,0.28,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 0,1,0,0 } },
+				{ { 0.18,0.28,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 1,1,0,0 } }
 			};
 			unsigned long FrameIndex[6] = { 0,1,2,2,1,3 };
 			Ctx->ClearDepthStencilView(MAIN->m_pDXManager->GetMainDTV(), D3D11_CLEAR_DEPTH, 1.0f, 0);
@@ -143,10 +108,10 @@ unsigned long CSMainMenu::OnEvent(CEventBase* pEvent)
 			auto Ctx = MAIN->m_pDXManager->GetContext();
 			CDXBasicPainter::VERTEX Frame1[4]
 			{
-				{ { -0.5,-1.0f / 3.0f,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 0,0,0,0 } }, // Primer vertice 
-				{ { 0.5,-1.0f / 3.0f,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 1,0,0,0 } },
-				{ { -0.5,-2.0f / 5.0f,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 0,1,0,0 } },
-				{ { 0.5,-2.0f / 5.0f,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 1,1,0,0 } }
+				{ { -0.19,-0.24,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 0,0,0,0 } }, // Primer vertice 
+				{ { 0.18,-0.24,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 1,0,0,0 } },
+				{ { -0.19,-0.26,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 0,1,0,0 } },
+				{ { 0.18,-0.26,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 1,1,0,0 } }
 			};
 			unsigned long FrameIndex[6] = { 0,1,2,2,1,3 };
 			Ctx->ClearDepthStencilView(MAIN->m_pDXManager->GetMainDTV(), D3D11_CLEAR_DEPTH, 1.0f, 0);
@@ -197,30 +162,6 @@ unsigned long CSMainMenu::OnEvent(CEventBase* pEvent)
 		Painter->DrawIndexed(Frame, 4, FrameIndex, 6, 0);
 
 		Painter->m_Params.World = Identity();
-		//Dibujar la opcion 1
-
-		CDXBasicPainter::VERTEX Frame1[4]
-		{
-			{ { -0.5,2.0f / 3.0f,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 0,0,0,0 } }, // Primer vertice 
-			{ { 0.5,2.0f / 3.0f,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 1,0,0,0 } },
-			{ { -0.5,1.0f / 3.0f,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 0,1,0,0 } },
-			{ { 0.5,1.0f / 3.0f,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 1,1,0,0 } }
-		};
-
-		Ctx->PSSetShaderResources(4, 1, &m_pSRVMainOption1);
-		Painter->DrawIndexed(Frame1, 4, FrameIndex, 6, 0);
-
-
-		//Dibujar Opcion2 
-		CDXBasicPainter::VERTEX Frame2[4]
-		{
-			{ { -0.5,-1.0f / 3.0f,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 0,0,0,0 } }, // Primer vertice 
-			{ { 0.5,-1.0f / 3.0f,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 1,0,0,0 } },
-			{ { -0.5,-2.0f / 3.0f,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 0,1,0,0 } },
-			{ { 0.5,-2.0f / 3.0f,0,1 },{ 0,0,0,0 },{ 0,0,0,0 },{ 0,0,0,0 },{ 1,1,1,1 },{ 1,1,0,0 } }
-		};
-		Ctx->PSSetShaderResources(4, 1, &m_pSRVMainOption2);
-		Painter->DrawIndexed(Frame2, 4, FrameIndex, 6, 0);
 
 
 		MATRIX4D ST = Translation(0.5,-0.5,0)* // Centro de caracter
@@ -228,10 +169,9 @@ unsigned long CSMainMenu::OnEvent(CEventBase* pEvent)
 			Translation(-1,1,0); //Posicion del texto
 
 		//MAIN->m_pDXManager->GetContext()->OMSetBlendState(NULL, NULL, -1);
-		MAIN->m_pTextRender->RenderText(ST, "Andres");
+		MAIN->m_pTextRender->RenderText(ST, "Balloon Burst V2.0");
 		MAIN->m_pDXManager->GetSwapChain()->Present(1, 0);
 
-		////return 0;
 
 	}
 	if (EVENT_WIN32 == pEvent->m_ulEventType)

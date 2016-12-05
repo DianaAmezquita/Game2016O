@@ -18,8 +18,6 @@ public:
 	virtual ~CSMainMenu();
 private:
 	ID3D11ShaderResourceView* m_pSRVBackGround;
-	ID3D11ShaderResourceView* m_pSRVMainOption1;
-	ID3D11ShaderResourceView* m_pSRVMainOption2;
 	ID3D11ShaderResourceView* m_pSRVSelectionBar;
 	CSndControl* m_pSndBackground;
 	//CDXTextRenderer* m_pTextRender;

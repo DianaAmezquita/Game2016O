@@ -38,19 +38,30 @@ void CSGameOver::OnEntry(void)
 			L"No se pudo Iniciar", MB_ICONERROR);
 		// Preguntar al corni si nos regreamos al estado nulo
 	}
+	int a = MAIN->winner;
+	switch (a)
+	{
+	case 0:
+		g_pSysTextur = CImageBMP::CreateBitmapFromFile("..\\Assets\\00WinnerBackground.bmp", NULL);
+		break;
 
-	if (MAIN->win == true)
-	{
-		g_pSysTextur = CImageBMP::CreateBitmapFromFile("..\\Assets\\Win.bmp", NULL);
-	}
-	else
-	{
-		g_pSysTextur = CImageBMP::CreateBitmapFromFile("..\\Assets\\Lose.bmp", NULL);
+	case 1:
+		g_pSysTextur = CImageBMP::CreateBitmapFromFile("..\\Assets\\01WinnerBackground.bmp", NULL);
+		break;
+
+	case 2:
+		g_pSysTextur = CImageBMP::CreateBitmapFromFile("..\\Assets\\02WinnerBackground.bmp", NULL);
+		break;
+
+	case 3:
+		g_pSysTextur = CImageBMP::CreateBitmapFromFile("..\\Assets\\03WinnerBackground.bmp", NULL);
+		break;
+	default:
+		g_pSysTextur = CImageBMP::CreateBitmapFromFile("..\\Assets\\03WinnerBackground.bmp", NULL);
+		break;
 	}
 	
 	m_pImag = g_pSysTextur->CreateTexture(m_pDXManager);
-
-
 	MAIN->m_pSndManager->ClearEngine();
 	auto fx = MAIN->m_pSndManager->LoadSoundFx(L"..\\Assets\\Explosion.wav", SND_EXPLOSION);
 	if (fx)

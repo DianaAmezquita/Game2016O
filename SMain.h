@@ -48,6 +48,7 @@ public:
 	CDXTextRenderer* m_pTextRender;
 	bool m_bInitializationCorrect;
 	bool win;
+	int winner = 1000;
 	unsigned long GetClassID() { return CLSID_CSMain; }
 	const char* GetClassString() { return "CSMain"; }
 public:
